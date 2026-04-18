@@ -5,6 +5,7 @@ import { qk } from '../../lib/queryKeys'
 import { normalizeBaseUrl, toInt } from '../../lib/utils'
 
 const FEED_PREFS_KEY = 'raven.feed.preferences.v1'
+const FEED_PREFS_MIGRATED_KEY = 'raven.feed.preferences.migrated.v1'
 
 export type FeedChoice = {
   provider: string
@@ -125,6 +126,24 @@ export function useFeedExperience(defaultBaseUrl: string): FeedExperienceState {
   const [preferencesErrorText, setPreferencesErrorText] = useState<string | null>(null)
   const [preferencesLoaded, setPreferencesLoaded] = useState(false)
 
+  const readLocalChoicesForMigration = () => {
+    try {
+      const raw = localStorage.getItem(FEED_PREFS_KEY)
+      if (!raw) return [] as FeedPreferenceChoice[]
+      const parsed = JSON.parse(raw) as FeedPreferenceChoice[]
+      if (!Array.isArray(parsed)) return []
+      return parsed
+        .filter((item) => Boolean(item?.provider && item?.category && item?.topic))
+        .map((item) => ({
+          provider: String(item.provider).toLowerCase(),
+          category: String(item.category).toLowerCase(),
+          topic: String(item.topic).toLowerCase(),
+        }))
+    } catch {
+      return [] as FeedPreferenceChoice[]
+    }
+  }
+
   const limit = toInt(limitInput, 12)
   const client = useMemo(() => api(baseUrl), [baseUrl])
 
@@ -182,7 +201,15 @@ export function useFeedExperience(defaultBaseUrl: string): FeedExperienceState {
       setPreferencesSyncing(true)
       setPreferencesErrorText(null)
       try {
-        const res = await client.getUserFeedPreferences(authToken)
+        const migrationDone = localStorage.getItem(FEED_PREFS_MIGRATED_KEY) === '1'
+        let res
+        if (!migrationDone) {
+          const localChoices = readLocalChoicesForMigration()
+          res = await client.syncLocalPreferencesOnce(authToken, localChoices)
+          localStorage.setItem(FEED_PREFS_MIGRATED_KEY, '1')
+        } else {
+          res = await client.getUserFeedPreferences(authToken)
+        }
         if (!mounted) return
         setSavedChoices(
           res.choices.map((choice) => ({

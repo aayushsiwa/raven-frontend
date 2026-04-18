@@ -58,6 +58,10 @@ export type FeedPreferencesResponse = {
   choices: FeedPreferenceChoice[]
 }
 
+export type FeedPreferencesSyncResponse = FeedPreferencesResponse & {
+  used: 'db' | 'local'
+}
+
 export type ProvidersResponse = {
   providers: string[]
 }
@@ -228,6 +232,15 @@ export function api(baseUrl: string) {
     putUserFeedPreferences: (token: string, choices: FeedPreferenceChoice[]) =>
       request<FeedPreferencesResponse>(baseUrl, '/api/v1/user/feed-preferences', {
         method: 'PUT',
+        headers: {
+          ...jsonHeaders,
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ choices }),
+      }),
+    syncLocalPreferencesOnce: (token: string, choices: FeedPreferenceChoice[]) =>
+      request<FeedPreferencesSyncResponse>(baseUrl, '/api/v1/user/feed-preferences/sync-local', {
+        method: 'POST',
         headers: {
           ...jsonHeaders,
           Authorization: `Bearer ${token}`,
