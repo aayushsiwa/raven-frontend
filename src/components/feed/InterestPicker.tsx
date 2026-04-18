@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
+import { formatCategory, formatProvider } from '../../features/feed/constants';
 import type { FeedChoice } from '../../features/feed/useFeedPreferences';
-import { formatProvider, formatCategory } from '../../features/feed/constants';
 
 type InterestPickerProps = {
   feedTree: Record<string, Record<string, string[]>>;

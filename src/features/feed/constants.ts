@@ -7,7 +7,7 @@ export const Provider = {
   INDIAN_NEWS: 'indian_news',
 } as const;
 
-export type Provider = typeof Provider[keyof typeof Provider];
+export type Provider = (typeof Provider)[keyof typeof Provider];
 
 export const PROVIDER_DISPLAY_NAMES: Record<string, string> = {
   [Provider.VERGE]: 'The Verge',
@@ -41,5 +41,8 @@ export const CATEGORY_DISPLAY_NAMES: Record<string, string> = {
 
 export function formatCategory(slug: string): string {
   const normalized = slug.toLowerCase();
-  return CATEGORY_DISPLAY_NAMES[normalized] || normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  return (
+    CATEGORY_DISPLAY_NAMES[normalized] ||
+    normalized.charAt(0).toUpperCase() + normalized.slice(1)
+  );
 }

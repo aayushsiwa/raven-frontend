@@ -1,10 +1,14 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, ExternalLink, Bookmark, BookmarkCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { ArrowLeft, Bookmark, BookmarkCheck, ExternalLink } from 'lucide-react';
+import { useMemo } from 'react';
 
 import { useAuth } from '../../../features/auth/useAuth';
+import {
+  formatCategory,
+  formatProvider,
+} from '../../../features/feed/constants';
 import { useSavedArticles } from '../../../features/savedArticles/useSavedArticles';
-import { formatProvider, formatCategory } from '../../../features/feed/constants';
 import { formatDate, sanitizeHTML } from '../../../lib/utils';
 
 const DEFAULT_BASE_URL = 'http://localhost:8080';
@@ -16,31 +20,44 @@ type StoryDetailRouteContentProps = {
   provider: string;
   category: string;
   topic: string;
+  rankTime: number;
   published?: string;
 };
 
 export function StoryDetailRouteContent(props: StoryDetailRouteContentProps) {
   const navigate = useNavigate();
   const auth = useAuth(DEFAULT_BASE_URL);
-  
+
   const { isSaved, toggleSaved } = useSavedArticles({
     savedArticles: auth.savedArticles,
     onSaveArticle: auth.saveArticleLocally,
     onRemoveSavedArticle: auth.removeLocalArticle,
   });
 
-  const storyObj = {
-    provider: props.provider,
-    category: props.category,
-    topic: props.topic,
-    entry: {
-      title: props.title,
-      link: props.url,
-      summary: props.content,
-      published: props.published,
-    },
-    rankTime: Date.now(),
-  };
+  const storyObj = useMemo(
+    () => ({
+      provider: props.provider,
+      category: props.category,
+      topic: props.topic,
+      entry: {
+        title: props.title,
+        link: props.url,
+        summary: props.content,
+        published: props.published,
+      },
+      rankTime: props.rankTime,
+    }),
+    [
+      props.provider,
+      props.category,
+      props.topic,
+      props.title,
+      props.url,
+      props.content,
+      props.published,
+      props.rankTime,
+    ]
+  );
 
   const saved = isSaved(storyObj);
   const cleanBodyText = props.content
@@ -64,14 +81,18 @@ export function StoryDetailRouteContent(props: StoryDetailRouteContentProps) {
         <div className="flex items-center gap-3">
           <button
             className={`flex items-center gap-2 px-4 py-2 rounded-xl border border-panel-border transition-all active:scale-95 ${
-              saved ? 'bg-primary-soft text-primary' : 'bg-panel text-muted hover:bg-surface-high'
+              saved
+                ? 'bg-primary-soft text-primary'
+                : 'bg-panel text-muted hover:bg-surface-high'
             }`}
             onClick={() => toggleSaved(storyObj)}
           >
             {saved ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
-            <span className="font-bold text-[0.85rem]">{saved ? 'Saved' : 'Save'}</span>
+            <span className="font-bold text-[0.85rem]">
+              {saved ? 'Saved' : 'Save'}
+            </span>
           </button>
-          
+
           <a
             href={props.url}
             target="_blank"
@@ -94,11 +115,11 @@ export function StoryDetailRouteContent(props: StoryDetailRouteContentProps) {
             {formatCategory(props.category)} / {props.topic}
           </span>
         </div>
-        
+
         <h1 className="font-serif italic tracking-tight text-[2.5rem] md:text-[3.5rem] leading-[1.1] mb-6">
           {props.title}
         </h1>
-        
+
         <div className="flex items-center justify-center md:justify-start gap-4 text-muted/60">
           <p className="text-[0.85rem] font-semibold uppercase tracking-wide">
             {formatDate(props.published)}
@@ -106,14 +127,14 @@ export function StoryDetailRouteContent(props: StoryDetailRouteContentProps) {
         </div>
       </header>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
         className="relative"
       >
         <div className="absolute -left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-primary/20 via-primary/5 to-transparent hidden md:block rounded-full" />
-        
+
         <div className="prose prose-lg dark:prose-invert max-w-none prose-p:text-muted prose-p:leading-[1.8] prose-p:mb-6 prose-headings:font-serif prose-headings:italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-2xl prose-img:shadow-premium">
           {hasHTML ? (
             <div
@@ -126,16 +147,13 @@ export function StoryDetailRouteContent(props: StoryDetailRouteContentProps) {
           )}
         </div>
       </motion.div>
-      
+
       <footer className="mt-16 pt-8 border-t border-panel-border text-center">
         <p className="text-muted/40 text-[0.8rem] font-bold uppercase tracking-[0.2em] mb-4">
           End of Dispatch
         </p>
         <div className="flex justify-center gap-4">
-          <Link
-            to="/"
-            className="text-primary font-bold hover:underline"
-          >
+          <Link to="/" className="text-primary font-bold hover:underline">
             Explore more signals
           </Link>
         </div>

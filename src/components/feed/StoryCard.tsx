@@ -1,9 +1,9 @@
+import { useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { Bookmark, BookmarkCheck, ExternalLink } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
 
+import { formatCategory, formatProvider } from '../../features/feed/constants';
 import type { FeedStory } from '../../features/feed/useFeedPreferences';
-import { formatProvider, formatCategory } from '../../features/feed/constants';
 import { formatDate, sanitizeHTML } from '../../lib/utils';
 
 type StoryCardProps = {
@@ -52,7 +52,7 @@ export function StoryCard({
   const handleCardClick = (e: React.MouseEvent) => {
     // If user is selecting text, don't navigate
     if (window.getSelection()?.toString()) return;
-    
+
     // Don't navigate if clicking on buttons or links
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('a')) {
@@ -68,6 +68,7 @@ export function StoryCard({
         provider: story.provider,
         category: story.category,
         topic: story.topic,
+        rankTime: story.rankTime,
         published: publishedDate,
       },
     });
@@ -84,9 +85,10 @@ export function StoryCard({
       <div className="flex justify-between items-start gap-4">
         <div className="flex-1">
           <p className="text-[0.65rem] uppercase tracking-wider text-tertiary font-bold mb-2">
-            {formatProvider(story.provider)} <span className="opacity-40 mx-1">•</span>{' '}
-            {formatCategory(story.category)} <span className="opacity-40 mx-1">•</span>{' '}
-            {story.topic}
+            {formatProvider(story.provider)}{' '}
+            <span className="opacity-40 mx-1">•</span>{' '}
+            {formatCategory(story.category)}{' '}
+            <span className="opacity-40 mx-1">•</span> {story.topic}
           </p>
           {onTitleClick ? (
             <h3

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { StoryDetailRouteContent } from '../interfaces/shared/routes/StoryDetailRouteContent';
+import { StoryRoutePage } from '../interfaces/shared/routes/StoryRoutePage';
 
 type StorySearch = {
   title: string;
@@ -9,6 +9,7 @@ type StorySearch = {
   provider: string;
   category: string;
   topic: string;
+  rankTime: number;
   published?: string;
 };
 
@@ -21,13 +22,9 @@ export const Route = createFileRoute('/story')({
       provider: (search.provider as string) || '',
       category: (search.category as string) || '',
       topic: (search.topic as string) || '',
+      rankTime: (search.rankTime as number) || Date.now(),
       published: search.published as string | undefined,
     };
   },
-  component: StoryDetailPage,
+  component: StoryRoutePage,
 });
-
-function StoryDetailPage() {
-  const search = Route.useSearch();
-  return <StoryDetailRouteContent {...search} />;
-}
