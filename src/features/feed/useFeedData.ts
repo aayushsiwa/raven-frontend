@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import type { RssEntry, api } from '../../lib/api';
@@ -31,22 +31,54 @@ export function useFeedData({
     const ts = new Date(published).getTime();
     return Number.isNaN(ts) ? 0 : ts;
   }
-  const batchQuery = useQuery({
+
+  const batchQuery = useInfiniteQuery({
     queryKey: qk.batchRss(baseUrl, savedChoices, limit),
-    queryFn: () => client.batchRss({ feeds: savedChoices, limit }),
+    queryFn: ({ pageParam }) =>
+      client.batchRss({
+        feeds: savedChoices,
+        limit,
+        cursor: typeof pageParam === 'number' ? pageParam : undefined,
+      }),
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.has_more ? (lastPage.next_cursor ?? undefined) : undefined,
     enabled: !isAuthMode && savedChoices.length > 0,
   });
 
-  const userFeedQuery = useQuery({
+  const userFeedQuery = useInfiniteQuery({
     queryKey: qk.userFeed(baseUrl, authToken ?? 'none', limit),
-    queryFn: () => client.userFeed(authToken as string, limit),
+    queryFn: ({ pageParam }) =>
+      client.userFeed(authToken as string, {
+        limit,
+        cursor: typeof pageParam === 'number' ? pageParam : undefined,
+      }),
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.has_more ? (lastPage.next_cursor ?? undefined) : undefined,
     enabled: isAuthMode && Boolean(authToken),
   });
 
   const allStories = useMemo(() => {
-    const results = isAuthMode
-      ? (userFeedQuery.data?.results ?? [])
-      : (batchQuery.data?.results ?? []);
+    const pages = isAuthMode
+      ? (userFeedQuery.data?.pages ?? [])
+      : (batchQuery.data?.pages ?? []);
+
+    const storiesFromApi = pages.flatMap((page) =>
+      (page.stories ?? []).map((story) => ({
+        provider: story.provider,
+        category: story.category,
+        topic: story.topic,
+        entry: story.entry,
+        rankTime: story.rank_time,
+      }))
+    );
+
+    if (storiesFromApi.length > 0) {
+      return storiesFromApi;
+    }
+
+    const results = pages.flatMap((page) => page.results ?? []);
     const seen = new Set<string>();
 
     return results
@@ -68,9 +100,11 @@ export function useFeedData({
       .sort((a, b) => b.rankTime - a.rankTime);
   }, [batchQuery.data, isAuthMode, userFeedQuery.data]);
 
+  const activeQuery = isAuthMode ? userFeedQuery : batchQuery;
+
   return {
     allStories,
-    feedLoading: isAuthMode ? userFeedQuery.isLoading : batchQuery.isLoading,
+    feedLoading: activeQuery.isLoading,
     feedErrorTexts: isAuthMode
       ? userFeedQuery.error
         ? [errorText(userFeedQuery.error)]
@@ -78,6 +112,9 @@ export function useFeedData({
       : batchQuery.error
         ? [errorText(batchQuery.error)]
         : [],
-    refetch: isAuthMode ? userFeedQuery.refetch : batchQuery.refetch,
+    refetch: activeQuery.refetch,
+    hasMore: Boolean(activeQuery.hasNextPage),
+    loadNextPage: () => activeQuery.fetchNextPage(),
+    loadingMore: activeQuery.isFetchingNextPage,
   };
 }

@@ -108,6 +108,16 @@ export type RssResponse = {
 export type BatchRssResponse = {
   generated_at: string;
   results: RssResponse[];
+  stories: {
+    provider: string;
+    category: string;
+    topic: string;
+    feed_url?: string;
+    entry: RssEntry;
+    rank_time: number;
+  }[];
+  next_cursor: number | null;
+  has_more: boolean;
 };
 
 export type UserFeedResponse = BatchRssResponse;
@@ -298,10 +308,18 @@ export function api(baseUrl: string) {
           body: JSON.stringify({ choices }),
         }
       ),
-    userFeed: (token: string, limit: number) =>
+    userFeed: (
+      token: string,
+      params: { limit: number; cursor?: number; from_ts?: number; to_ts?: number }
+    ) =>
       request<UserFeedResponse>(
         baseUrl,
-        `/api/v1/user/feed${queryString({ limit })}`,
+        `/api/v1/user/feed${queryString({
+          limit: params.limit,
+          cursor: params.cursor,
+          from_ts: params.from_ts,
+          to_ts: params.to_ts,
+        })}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -339,6 +357,9 @@ export function api(baseUrl: string) {
     batchRss: (params: {
       feeds: { provider: string; category: string; topic: string }[];
       limit: number;
+      cursor?: number;
+      from_ts?: number;
+      to_ts?: number;
     }) =>
       request<BatchRssResponse>(baseUrl, '/api/v1/batch/rss', {
         method: 'POST',
