@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { StoryCard } from '../../components/feed/StoryCard'
 import { FeedSkeleton } from '../../components/ui/Skeleton'
 import type { FeedStory } from '../../features/feed/useFeedExperience'
@@ -9,22 +8,11 @@ type MobileFeedReaderPageProps = {
   errorTexts: string[]
   onRefresh: () => void
   canRefresh: boolean
-  teaser?: boolean
-  onTitleClick?: (story: FeedStory) => void
+  isSaved: (story: FeedStory) => boolean
+  onSaveToggle: (story: FeedStory) => void
 }
 
 export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
-  const { teaser = false, onTitleClick } = props
-  const [expandedStoryLink, setExpandedStoryLink] = useState<string | null>(null)
-
-  const handleTitleClick = (story: FeedStory) => {
-    const link = story.entry.link ?? ''
-    if (teaser) {
-      setExpandedStoryLink(prev => (prev === link ? null : link))
-    }
-    onTitleClick?.(story)
-  }
-
   return (
     <section className="mobile-feed-reader">
       <div className="mobile-feed-head">
@@ -47,18 +35,16 @@ export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
 
       <div className="story-stack">
         {props.stories.length ? (
-          props.stories.map((story, idx) => {
-            const isExpanded = expandedStoryLink === (story.entry.link ?? '')
-            return (
-              <StoryCard
-                story={story}
-                compact={teaser}
-                teaser={teaser && !isExpanded}
-                onTitleClick={handleTitleClick}
-                key={`${story.entry.link ?? 'story'}-${idx}`}
-              />
-            )
-          })
+          props.stories.map((story, idx) => (
+            <StoryCard
+              story={story}
+              compact={true}
+              teaser={true}
+              isSaved={props.isSaved(story)}
+              onSaveToggle={props.onSaveToggle}
+              key={`${story.entry.link ?? 'story'}-${idx}`}
+            />
+          ))
         ) : !props.isLoading ? (
           <div className="mobile-empty">
             <p>No stories yet.</p>

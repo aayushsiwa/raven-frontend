@@ -6,9 +6,18 @@ type StoryCardProps = {
   compact?: boolean
   teaser?: boolean
   onTitleClick?: (story: FeedStory) => void
+  isSaved?: boolean
+  onSaveToggle?: (story: FeedStory) => void
 }
 
-export function StoryCard({ story, compact = false, teaser = false, onTitleClick }: StoryCardProps) {
+export function StoryCard({
+  story,
+  compact = false,
+  teaser = false,
+  onTitleClick,
+  isSaved = false,
+  onSaveToggle,
+}: StoryCardProps) {
   const publishedDate =
     story.entry.published_iso ??
     story.entry.published ??
@@ -41,6 +50,18 @@ export function StoryCard({ story, compact = false, teaser = false, onTitleClick
           <h3 className="story-title">{story.entry.title ?? 'Untitled entry'}</h3>
         )}
       </div>
+
+      {onSaveToggle ? (
+        <div className="story-actions">
+          <button
+            className={`btn ghost save-btn ${isSaved ? 'saved' : ''}`.trim()}
+            onClick={() => onSaveToggle(story)}
+            type="button"
+          >
+            {isSaved ? 'Unsave' : 'Save'}
+          </button>
+        </div>
+      ) : null}
 
       {publishedDate ? <p className="story-time">{formatDate(publishedDate)}</p> : <p className="story-time">No date</p>}
 

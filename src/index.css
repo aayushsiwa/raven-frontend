@@ -88,7 +88,7 @@ button:focus {
   border: none;
   border-radius: 0.75rem;
   padding: 0.6rem 0.92rem;
-  background: linear-gradient(135deg, #004ac6, #2563eb);
+  background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 72%, #ffffff 28%));
   color: #fff;
   font: inherit;
   font-weight: 600;
@@ -108,8 +108,8 @@ button:focus {
 }
 
 .btn.ghost {
-  background: rgba(231, 232, 233, 0.9);
-  color: #1f3567;
+  background: color-mix(in srgb, var(--surface-high) 82%, #ffffff 18%);
+  color: color-mix(in srgb, var(--primary) 64%, #102346 36%);
 }
 
 .muted {
@@ -222,7 +222,7 @@ button:focus {
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 0.76rem;
-  color: #004ac6;
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -238,7 +238,7 @@ button:focus {
 
 .card-spotlight {
   background: var(--panel);
-  border: 1px solid rgba(195, 198, 215, 0.2);
+  border: 1px solid var(--panel-border);
   border-radius: 1rem;
   backdrop-filter: blur(16px);
   padding: 1rem;
@@ -392,9 +392,9 @@ button:focus {
 }
 
 .choice-chip {
-  border: 1px solid rgba(0, 74, 198, 0.2);
-  background: rgba(0, 74, 198, 0.1);
-  color: #0f3b8a;
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  background: color-mix(in srgb, var(--primary) 15%, #ffffff 85%);
+  color: color-mix(in srgb, var(--primary) 80%, #102346 20%);
   border-radius: 999px;
   padding: 0.25rem 0.6rem;
   font: inherit;
@@ -545,9 +545,9 @@ button:focus {
 }
 
 .topic-pill {
-  border: 1px solid rgba(0, 74, 198, 0.18);
-  background: rgba(0, 74, 198, 0.1);
-  color: #0f3b8a;
+  border: 1px solid color-mix(in srgb, var(--primary) 26%, transparent);
+  background: color-mix(in srgb, var(--primary) 13%, #ffffff 87%);
+  color: color-mix(in srgb, var(--primary) 80%, #102346 20%);
   border-radius: 999px;
   padding: 0.28rem 0.62rem;
   font: inherit;
@@ -556,9 +556,9 @@ button:focus {
 }
 
 .topic-pill.selected {
-  background: #004ac6;
+  background: var(--primary);
   color: #fff;
-  border-color: #004ac6;
+  border-color: var(--primary);
 }
 
 .settings-panel {
@@ -669,7 +669,7 @@ button:focus {
   transform: translateX(-50%);
   width: min(94vw, 430px);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.45rem;
   padding: 0.45rem;
   border-radius: 1rem;
@@ -695,8 +695,112 @@ button:focus {
 }
 
 .mobile-bottom-nav button.active {
-  background: rgba(0, 74, 198, 0.11);
+  background: color-mix(in srgb, var(--primary) 12%, #ffffff 88%);
   color: var(--primary);
+}
+
+.save-btn.saved {
+  background: color-mix(in srgb, var(--primary) 15%, #ffffff 85%);
+  color: var(--primary);
+}
+
+.story-actions {
+  margin-top: 0.6rem;
+}
+
+.saved-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.saved-item {
+  border: 1px solid var(--panel-border);
+  border-radius: 0.9rem;
+  padding: 0.8rem;
+  background: color-mix(in srgb, var(--panel) 70%, #ffffff 30%);
+}
+
+.saved-item h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.saved-meta {
+  margin: 0.28rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.saved-actions {
+  margin-top: 0.58rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.settings-accordion {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.settings-section {
+  border: 1px solid var(--panel-border);
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--panel) 74%, #ffffff 26%);
+}
+
+.settings-section > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.75rem 0.82rem;
+  font-weight: 700;
+}
+
+.settings-section > summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-section-body {
+  padding: 0 0.82rem 0.82rem;
+}
+
+.theme-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.theme-preset-btn.active {
+  background: color-mix(in srgb, var(--primary) 18%, #ffffff 82%);
+  color: var(--primary);
+}
+
+.theme-vars-grid {
+  display: grid;
+  gap: 0.62rem;
+}
+
+.theme-var-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.theme-var-field input[type='color'] {
+  width: 3rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+}
+
+.mobile-saved-list .saved-item {
+  background: rgba(255, 255, 255, 0.95);
 }
 
 @keyframes fade-up {
