@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Raven icon">
+  <rect width="512" height="512" rx="102" fill="#0f1720"/>
+  <circle cx="256" cy="256" r="170" fill="#0f6cbd" opacity="0.24"/>
+  <path d="M96 336l117-160 64 58 68-106 71 208h-53l-35-100-47 73-58-49-46 76z" fill="#e6f4ff"/>
+  <path d="M156 145h199l-23 33H177z" fill="#56c0a7"/>
+</svg>
