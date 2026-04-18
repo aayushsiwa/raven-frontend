@@ -32,20 +32,20 @@ export function OnboardingPage(props: OnboardingPageProps) {
   return (
     <section className="onboarding-wrap">
       <div className="onboarding-card">
-        <p className="mobile-eyebrow">Raven</p>
-        <h1>Welcome</h1>
-        <p className="muted">Create account or continue with provider.</p>
+        <p className="mobile-eyebrow onboarding-brand">The Collector</p>
+        <h1>Curate signal. Ignore noise.</h1>
+        <p className="muted">Build personal reading room with local account or connected identity.</p>
 
         <div className="onboarding-switch">
           <button
-            className={mode === 'signup' ? 'btn' : 'btn ghost'}
+            className={mode === 'signup' ? 'btn onboarding-primary' : 'btn ghost'}
             onClick={() => setMode('signup')}
             type="button"
           >
             Sign up
           </button>
           <button
-            className={mode === 'login' ? 'btn' : 'btn ghost'}
+            className={mode === 'login' ? 'btn onboarding-primary' : 'btn ghost'}
             onClick={() => setMode('login')}
             type="button"
           >
@@ -75,7 +75,7 @@ export function OnboardingPage(props: OnboardingPageProps) {
             />
           </label>
 
-          <button className="btn" type="submit" disabled={props.loading}>
+          <button className="btn onboarding-primary" type="submit" disabled={props.loading}>
             {mode === 'login' ? 'Log in' : 'Create account'}
           </button>
         </form>
@@ -83,33 +83,33 @@ export function OnboardingPage(props: OnboardingPageProps) {
         <div className="oauth-grid">
           <button
             type="button"
-            className="btn ghost"
+            className="btn ghost onboarding-oauth"
             disabled={props.loading || !username}
             onClick={() => {
               void props.onOAuth('google', username)
             }}
           >
-            Continue Google
+            Continue with Google
           </button>
           <button
             type="button"
-            className="btn ghost"
+            className="btn ghost onboarding-oauth"
             disabled={props.loading || !username}
             onClick={() => {
               void props.onOAuth('github', username)
             }}
           >
-            Continue GitHub
+            Continue with GitHub
           </button>
           <button
             type="button"
-            className="btn ghost"
+            className="btn ghost onboarding-oauth"
             disabled={props.loading || !username}
             onClick={() => {
               void props.onOAuth('discord', username)
             }}
           >
-            Continue Discord
+            Continue with Discord
           </button>
         </div>
 

@@ -1,21 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,700;6..72,800&display=swap');
+
 :root {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Manrope', sans-serif;
   line-height: 1.45;
   font-weight: 400;
-  color: #0f1720;
-  background: #eef1f5;
+  color: #191c1d;
+  background: #f8f9fa;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --bg: #eef1f5;
-  --panel: rgba(255, 255, 255, 0.84);
-  --panel-border: rgba(15, 23, 32, 0.12);
-  --text: #0f1720;
-  --muted: #4f5d6a;
-  --primary: #0f6cbd;
-  --primary-soft: rgba(15, 108, 189, 0.15);
-  --danger: #b53b3b;
+  --bg: #f8f9fa;
+  --panel: rgba(255, 255, 255, 0.88);
+  --panel-border: rgba(115, 118, 134, 0.15);
+  --text: #191c1d;
+  --muted: #434655;
+  --primary: #004ac6;
+  --primary-soft: rgba(0, 74, 198, 0.14);
+  --danger: #ba1a1a;
+  --tertiary: #943700;
+  --surface-low: #f3f4f5;
+  --surface-high: #e7e8e9;
 }
 
 * {
@@ -31,8 +36,8 @@ body,
 body {
   margin: 0;
   background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(15, 108, 189, 0.16), transparent 65%),
-    radial-gradient(900px 500px at 95% 0%, rgba(9, 154, 139, 0.16), transparent 60%),
+    radial-gradient(1000px 560px at 8% -16%, rgba(0, 74, 198, 0.12), transparent 65%),
+    radial-gradient(780px 420px at 92% -10%, rgba(148, 55, 0, 0.11), transparent 60%),
     var(--bg);
   color: var(--text);
 }
@@ -75,15 +80,15 @@ select {
 input:focus,
 select:focus,
 button:focus {
-  outline: 2px solid rgba(15, 108, 189, 0.4);
+  outline: 2px solid rgba(0, 74, 198, 0.35);
   outline-offset: 1px;
 }
 
 .btn {
   border: none;
-  border-radius: 0.72rem;
+  border-radius: 0.75rem;
   padding: 0.6rem 0.92rem;
-  background: var(--primary);
+  background: linear-gradient(135deg, #004ac6, #2563eb);
   color: #fff;
   font: inherit;
   font-weight: 600;
@@ -103,8 +108,8 @@ button:focus {
 }
 
 .btn.ghost {
-  background: var(--primary-soft);
-  color: #0c548f;
+  background: rgba(231, 232, 233, 0.9);
+  color: #1f3567;
 }
 
 .muted {
@@ -114,7 +119,7 @@ button:focus {
 
 .error {
   color: #8f2020;
-  background: rgba(181, 59, 59, 0.1);
+  background: rgba(186, 26, 26, 0.1);
   border-radius: 0.6rem;
   padding: 0.45rem 0.6rem;
 }
@@ -155,18 +160,18 @@ button:focus {
 
 .beam-1 {
   left: 8%;
-  background: #0f6cbd;
+  background: #004ac6;
 }
 
 .beam-2 {
   left: 46%;
-  background: #168a7a;
+  background: #2563eb;
   animation-delay: -4s;
 }
 
 .beam-3 {
   left: 82%;
-  background: #4c8f3d;
+  background: #943700;
   animation-delay: -8s;
 }
 
@@ -184,13 +189,13 @@ button:focus {
 .spot-left {
   top: 10px;
   left: -120px;
-  background: #0f6cbd;
+  background: #004ac6;
 }
 
 .spot-right {
   top: 120px;
   right: -140px;
-  background: #168a7a;
+  background: #943700;
 }
 
 .hero {
@@ -201,6 +206,8 @@ button:focus {
 
 .hero h1 {
   margin: 0.25rem 0 0.5rem;
+  font-family: 'Newsreader', serif;
+  font-style: italic;
   font-size: clamp(1.8rem, 5vw, 3rem);
   letter-spacing: -0.02em;
 }
@@ -215,7 +222,7 @@ button:focus {
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 0.76rem;
-  color: #245a86;
+  color: #004ac6;
   font-weight: 600;
 }
 
@@ -231,11 +238,11 @@ button:focus {
 
 .card-spotlight {
   background: var(--panel);
-  border: 1px solid var(--panel-border);
+  border: 1px solid rgba(195, 198, 215, 0.2);
   border-radius: 1rem;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(16px);
   padding: 1rem;
-  box-shadow: 0 10px 30px rgba(15, 23, 32, 0.08);
+  box-shadow: 0 24px 48px -12px rgba(25, 28, 29, 0.06);
   animation: fade-up 500ms ease-out;
 }
 
@@ -282,29 +289,43 @@ button:focus {
 }
 
 .story-card {
-  border: 1px solid rgba(15, 23, 32, 0.12);
-  border-radius: 0.86rem;
-  padding: 0.78rem;
-  background: rgba(255, 255, 255, 0.9);
+  border-radius: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 30px -18px rgba(25, 28, 29, 0.18);
+}
+
+.story-headline-wrap {
+  margin-bottom: 0.35rem;
 }
 
 .story-tag {
   margin: 0;
-  font-size: 0.76rem;
-  color: #245a86;
+  font-size: 0.7rem;
+  color: var(--tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.16em;
+  font-weight: 700;
 }
 
 .story-card h3 {
-  margin: 0.34rem 0 0;
-  font-size: 1.02rem;
+  margin: 0.45rem 0 0;
+  font-size: 1.45rem;
+  line-height: 1.2;
+  font-family: 'Newsreader', serif;
+  letter-spacing: -0.02em;
+}
+
+.story-title:hover {
+  color: var(--primary);
 }
 
 .story-time {
   margin: 0.3rem 0 0;
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .story-summary {
@@ -319,12 +340,17 @@ button:focus {
   text-overflow: ellipsis;
   color: var(--muted);
   font-size: 0.94rem;
+  line-height: 1.65;
 }
 
 .story-link {
   display: inline-block;
-  margin-top: 0.55rem;
+  margin-top: 0.75rem;
   font-weight: 600;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
 }
 
 .picker-actions {
@@ -342,9 +368,9 @@ button:focus {
 }
 
 .choice-chip {
-  border: 1px solid rgba(15, 108, 189, 0.3);
-  background: rgba(15, 108, 189, 0.12);
-  color: #0c548f;
+  border: 1px solid rgba(0, 74, 198, 0.2);
+  background: rgba(0, 74, 198, 0.1);
+  color: #0f3b8a;
   border-radius: 999px;
   padding: 0.25rem 0.6rem;
   font: inherit;
@@ -364,7 +390,7 @@ button:focus {
 
 .mobile-shell {
   min-height: 100dvh;
-  max-width: 460px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 0.6rem 0.75rem calc(86px + env(safe-area-inset-bottom));
   display: flex;
@@ -377,13 +403,15 @@ button:focus {
   top: 0;
   z-index: 5;
   padding: 0.75rem 0.2rem 0.5rem;
-  background: linear-gradient(180deg, rgba(238, 241, 245, 0.95), rgba(238, 241, 245, 0.72));
-  backdrop-filter: blur(6px);
+  background: linear-gradient(180deg, rgba(248, 249, 250, 0.88), rgba(248, 249, 250, 0.62));
+  backdrop-filter: blur(20px);
 }
 
 .mobile-topbar h1 {
   margin: 0.2rem 0 0;
-  font-size: 1.3rem;
+  font-size: 1.65rem;
+  font-family: 'Newsreader', serif;
+  letter-spacing: -0.02em;
 }
 
 .mobile-eyebrow {
@@ -391,7 +419,7 @@ button:focus {
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.72rem;
-  color: #245a86;
+  color: var(--primary);
   font-weight: 700;
 }
 
@@ -420,19 +448,20 @@ button:focus {
 
 .story-stack {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.95rem;
 }
 
 .story-card.compact {
   border-radius: 1rem;
-  padding: 0.92rem;
-  box-shadow: 0 6px 18px rgba(15, 23, 32, 0.08);
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 32, 0.08);
 }
 
 .settings-panel,
-.interest-panel {
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(15, 23, 32, 0.12);
+.interest-panel,
+.discover-panel {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(195, 198, 215, 0.16);
   border-radius: 1rem;
   padding: 0.9rem;
   box-shadow: 0 8px 24px rgba(15, 23, 32, 0.08);
@@ -479,9 +508,9 @@ button:focus {
 }
 
 .topic-pill {
-  border: 1px solid rgba(15, 108, 189, 0.25);
-  background: rgba(15, 108, 189, 0.1);
-  color: #0c548f;
+  border: 1px solid rgba(0, 74, 198, 0.18);
+  background: rgba(0, 74, 198, 0.1);
+  color: #0f3b8a;
   border-radius: 999px;
   padding: 0.28rem 0.62rem;
   font: inherit;
@@ -490,9 +519,9 @@ button:focus {
 }
 
 .topic-pill.selected {
-  background: #0f6cbd;
+  background: #004ac6;
   color: #fff;
-  border-color: #0f6cbd;
+  border-color: #004ac6;
 }
 
 .settings-panel {
@@ -512,6 +541,28 @@ button:focus {
   color: var(--muted);
 }
 
+.discover-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-family: 'Newsreader', serif;
+}
+
+.discover-grid {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.discover-chip {
+  border-radius: 999px;
+  background: var(--surface-high);
+  color: #1d2a48;
+  padding: 0.34rem 0.7rem;
+  text-transform: capitalize;
+  font-size: 0.82rem;
+}
+
 .onboarding-wrap {
   min-height: 100dvh;
   display: grid;
@@ -522,16 +573,24 @@ button:focus {
 .onboarding-card {
   width: min(520px, 100%);
   background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(15, 23, 32, 0.12);
+  border: 1px solid rgba(195, 198, 215, 0.2);
   border-radius: 1rem;
-  padding: 1rem;
-  box-shadow: 0 12px 30px rgba(15, 23, 32, 0.1);
+  padding: 1.2rem;
+  box-shadow: 0 24px 48px -12px rgba(25, 28, 29, 0.08);
   display: grid;
   gap: 0.75rem;
 }
 
 .onboarding-card h1 {
   margin: 0;
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: clamp(2rem, 7vw, 3rem);
+  line-height: 1.05;
+}
+
+.onboarding-brand {
+  letter-spacing: 0.22em;
 }
 
 .onboarding-switch {
@@ -543,6 +602,15 @@ button:focus {
 .onboarding-form {
   display: grid;
   gap: 0.6rem;
+}
+
+.onboarding-primary {
+  background: linear-gradient(135deg, #004ac6, #2563eb);
+}
+
+.onboarding-oauth {
+  background: var(--surface-low);
+  color: #24304b;
 }
 
 .oauth-grid {
@@ -562,24 +630,30 @@ button:focus {
   gap: 0.45rem;
   padding: 0.45rem;
   border-radius: 1rem;
-  background: rgba(15, 23, 32, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(248, 249, 250, 0.8);
+  border: 1px solid rgba(195, 198, 215, 0.22);
   backdrop-filter: blur(10px);
 }
 
 .mobile-bottom-nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
   border: 0;
   border-radius: 0.78rem;
   padding: 0.62rem 0.4rem;
   background: transparent;
-  color: rgba(255, 255, 255, 0.75);
+  color: #5a6072;
   font: inherit;
   font-weight: 600;
+  font-size: 0.76rem;
 }
 
 .mobile-bottom-nav button.active {
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
+  background: rgba(0, 74, 198, 0.11);
+  color: var(--primary);
 }
 
 @keyframes fade-up {

@@ -28,7 +28,7 @@ export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
   return (
     <section className="mobile-feed-reader">
       <div className="mobile-feed-head">
-        <p>{props.stories.length} stories</p>
+        <p>Library - {props.stories.length} stories</p>
         <button
           className="btn ghost"
           onClick={props.onRefresh}

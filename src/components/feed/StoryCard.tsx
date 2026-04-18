@@ -27,36 +27,37 @@ export function StoryCard({ story, compact = false, teaser = false, onTitleClick
 
   return (
     <article className={`story-card ${compact ? 'compact' : ''} ${teaser ? 'teaser' : ''}`.trim()}>
-      <p className="story-tag">
-        {story.provider} / {story.category} / {story.topic}
-      </p>
-      {onTitleClick ? (
-        <h3 onClick={() => onTitleClick(story)} style={{ cursor: 'pointer' }}>
-          {story.entry.title ?? 'Untitled entry'}
-        </h3>
-      ) : (
-        <h3>{story.entry.title ?? 'Untitled entry'}</h3>
-      )}
-      {publishedDate ? (
-        <p className="story-time">{formatDate(publishedDate)}</p>
-      ) : (
-        <p className="story-time">No date</p>
-      )}
-      {cleanBodyText ? (teaser ? (
-        <div className="story-summary teaser-summary">
-          {teaserText}
-        </div>
-      ) : (hasHTML ? (
-        <div
-          className="story-summary"
-          dangerouslySetInnerHTML={{ __html: sanitizeHTML(cleanBodyText) }}
-        />
-      ) : (
-        <p className="story-summary">{String(cleanBodyText).slice(0, 480)}</p>
-      ))) : null}
+      <div className="story-headline-wrap">
+        <p className="story-tag">
+          {story.provider} / {story.category} / {story.topic}
+        </p>
+        {onTitleClick ? (
+          <h3 className="story-title" onClick={() => onTitleClick(story)} style={{ cursor: 'pointer' }}>
+            {story.entry.title ?? 'Untitled entry'}
+          </h3>
+        ) : (
+          <h3 className="story-title">{story.entry.title ?? 'Untitled entry'}</h3>
+        )}
+      </div>
+
+      {publishedDate ? <p className="story-time">{formatDate(publishedDate)}</p> : <p className="story-time">No date</p>}
+
+      {cleanBodyText
+        ? teaser
+          ? <div className="story-summary teaser-summary">{teaserText}</div>
+          : hasHTML
+            ? (
+                <div
+                  className="story-summary"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHTML(cleanBodyText) }}
+                />
+              )
+            : <p className="story-summary">{String(cleanBodyText).slice(0, 480)}</p>
+        : null}
+
       {!teaser && story.entry.link ? (
         <a className="story-link" href={String(story.entry.link)} target="_blank" rel="noreferrer">
-          Read full story
+          Open original
         </a>
       ) : null}
     </article>

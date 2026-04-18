@@ -1,9 +1,10 @@
 import { useMemo, useState, useEffect } from 'react'
+import { Newspaper, Compass, Settings } from 'lucide-react'
 import { InterestPicker } from '../../components/feed/InterestPicker'
 import { useFeedExperience, type FeedStory } from '../../features/feed/useFeedExperience'
 import { MobileFeedReaderPage } from './MobileFeedReaderPage'
 
-type MobileTab = 'feed' | 'setup'
+type MobileTab = 'feed' | 'discover' | 'setup'
 
 type MobileAppProps = {
   defaultBaseUrl: string
@@ -50,14 +51,15 @@ export function MobileApp({ defaultBaseUrl, username, onLogout }: MobileAppProps
   }
 
   const tabLabel = useMemo(() => {
-    if (tab === 'feed') return 'For You'
-    return 'Setup'
+    if (tab === 'feed') return 'Library'
+    if (tab === 'discover') return 'Discover'
+    return 'Settings'
   }, [tab])
 
   return (
     <main className="mobile-shell">
       <header className="mobile-topbar">
-        <p className="mobile-eyebrow">Raven</p>
+        <p className="mobile-eyebrow">The Collector</p>
         <h1>{tabLabel}</h1>
         <p className="muted">@{username}</p>
         {tab === 'feed' && feedViewMode === 'full' && (
@@ -101,6 +103,19 @@ export function MobileApp({ defaultBaseUrl, username, onLogout }: MobileAppProps
             />
           </div>
         ) : null}
+
+        {tab === 'discover' ? (
+          <section className="discover-panel">
+            <p className="discover-title">Curated Topics</p>
+            <p className="muted">Pick themes from setup. Feed adapts instantly.</p>
+            <div className="discover-grid">
+              {feed.savedChoices.length ? feed.savedChoices.slice(0, 8).map((choice) => {
+                const key = `${choice.provider}/${choice.category}/${choice.topic}`
+                return <span className="discover-chip" key={key}>{choice.topic}</span>
+              }) : <p className="muted">No interests yet. Open Settings.</p>}
+            </div>
+          </section>
+        ) : null}
       </section>
 
       <nav className="mobile-bottom-nav" aria-label="Bottom navigation">
@@ -108,13 +123,22 @@ export function MobileApp({ defaultBaseUrl, username, onLogout }: MobileAppProps
           className={tab === 'feed' ? 'active' : ''}
           onClick={() => updateNavigation('feed', 'teaser')}
         >
-          Feed
+          <Newspaper size={16} />
+          <span>Library</span>
+        </button>
+        <button
+          className={tab === 'discover' ? 'active' : ''}
+          onClick={() => updateNavigation('discover', 'teaser')}
+        >
+          <Compass size={16} />
+          <span>Discover</span>
         </button>
         <button
           className={tab === 'setup' ? 'active' : ''}
           onClick={() => updateNavigation('setup', 'teaser')}
         >
-          Setup
+          <Settings size={16} />
+          <span>Settings</span>
         </button>
       </nav>
     </main>
