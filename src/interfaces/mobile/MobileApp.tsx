@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { LocalSavedArticle } from '../../features/auth/useAuth';
 import { useFeedExperience } from '../../features/feed/useFeedExperience';
-import type { FeedStory } from '../../features/feed/useFeedPreferences';
+import { useSavedArticles } from '../../features/savedArticles/useSavedArticles';
 import type { ThemeState } from '../../features/theme/useTheme';
 import { DiscoverPage } from './DiscoverPage';
 import { MobileFeedReaderPage } from './MobileFeedReaderPage';
@@ -57,33 +57,11 @@ export function MobileApp({
     return 'Settings';
   }, [tab]);
 
-  const findSavedByUrl = (url: string | undefined) => {
-    if (!url) return null;
-    return savedArticles.find((item) => item.url === url) ?? null;
-  };
-
-  const isSaved = (story: FeedStory) =>
-    Boolean(
-      findSavedByUrl(story.entry.link ? String(story.entry.link) : undefined)
-    );
-
-  const onSaveToggle = (story: FeedStory) => {
-    const url = story.entry.link ? String(story.entry.link) : '';
-    if (!url) return;
-    const existing = findSavedByUrl(url);
-    if (existing) {
-      onRemoveSavedArticle(existing.id);
-      return;
-    }
-    onSaveArticle({
-      title: story.entry.title ?? 'Untitled entry',
-      url,
-      summary: story.entry.summary,
-      source:
-        story.entry.source ??
-        `${story.provider}/${story.category}/${story.topic}`,
-    });
-  };
+  const { isSaved, toggleSaved } = useSavedArticles({
+    savedArticles,
+    onSaveArticle,
+    onRemoveSavedArticle,
+  });
 
   return (
     <main className="mobile-shell">
@@ -117,7 +95,7 @@ export function MobileApp({
             }}
             canRefresh={Boolean(feed.savedChoices.length)}
             isSaved={isSaved}
-            onSaveToggle={onSaveToggle}
+            onSaveToggle={toggleSaved}
           />
         ) : null}
 

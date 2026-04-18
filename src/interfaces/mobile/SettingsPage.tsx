@@ -1,9 +1,21 @@
 import { InterestPicker } from '../../components/feed/InterestPicker';
-import type { FeedExperienceState } from '../../features/feed/useFeedPreferences';
+import type { FeedChoice } from '../../features/feed/useFeedPreferences';
 import type { ThemeState, ThemeVarKey } from '../../features/theme/useTheme';
 
 type SettingsPageProps = {
-  feed: FeedExperienceState;
+  feed: {
+    feedTree: Record<string, Record<string, string[]>>;
+    savedChoices: FeedChoice[];
+    mapRefreshing: boolean;
+    providersErrorText: string | null;
+    feedTreeErrorText: string | null;
+    isAuthMode: boolean;
+    preferencesSyncing: boolean;
+    preferencesErrorText: string | null;
+    addChoice: (choice: FeedChoice) => void;
+    removeChoice: (choice: FeedChoice) => void;
+    clearChoices: () => void;
+  };
   theme: ThemeState;
 };
 

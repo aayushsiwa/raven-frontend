@@ -43,11 +43,10 @@ export function useFeedData({
     enabled: isAuthMode && Boolean(authToken),
   });
 
-  const results = isAuthMode
-    ? (userFeedQuery.data?.results ?? [])
-    : (batchQuery.data?.results ?? []);
-
   const allStories = useMemo(() => {
+    const results = isAuthMode
+      ? (userFeedQuery.data?.results ?? [])
+      : (batchQuery.data?.results ?? []);
     const seen = new Set<string>();
 
     return results
@@ -67,7 +66,7 @@ export function useFeedData({
         return true;
       })
       .sort((a, b) => b.rankTime - a.rankTime);
-  }, [results]);
+  }, [batchQuery.data, isAuthMode, userFeedQuery.data]);
 
   return {
     allStories,

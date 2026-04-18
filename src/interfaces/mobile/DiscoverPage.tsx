@@ -1,7 +1,9 @@
-import type { FeedExperienceState } from '../../features/feed/useFeedPreferences';
+import type { FeedChoice } from '../../features/feed/useFeedPreferences';
 
 type DiscoverPageProps = {
-  feed: FeedExperienceState;
+  feed: {
+    savedChoices: FeedChoice[];
+  };
 };
 
 export function DiscoverPage(props: DiscoverPageProps) {

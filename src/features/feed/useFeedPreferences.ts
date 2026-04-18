@@ -1,17 +1,6 @@
-// import { useQuery } from '@tanstack/react-query';
-// import { useEffect, useMemo, useState } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { ApiError, type RssEntry, type api } from '../../lib/api';
-
-// import {
-//   ApiError,
-//   type FeedPreferenceChoice,
-//   type RssEntry,
-//   api,
-// } from '../../lib/api';
-// import { qk } from '../../lib/queryKeys';
-// import { normalizeBaseUrl, toInt } from '../../lib/utils';
 
 const FEED_PREFS_KEY = 'raven.feed.preferences.v1';
 const FEED_PREFS_MIGRATED_KEY = 'raven.feed.preferences.migrated.v1';
@@ -30,32 +19,6 @@ export type FeedStory = {
   rankTime: number;
 };
 
-// export type FeedExperienceState = {
-//   baseUrlInput: string;
-//   baseUrl: string;
-//   limitInput: string;
-//   limit: number;
-//   providers: string[];
-//   feedTree: Record<string, Record<string, string[]>>;
-//   savedChoices: FeedChoice[];
-//   allStories: FeedStory[];
-//   feedLoading: boolean;
-//   feedErrorTexts: string[];
-//   mapRefreshing: boolean;
-//   providersErrorText: string | null;
-//   feedTreeErrorText: string | null;
-//   isAuthMode: boolean;
-//   preferencesSyncing: boolean;
-//   preferencesErrorText: string | null;
-//   setBaseUrlInput: (value: string) => void;
-//   setLimitInput: (value: string) => void;
-//   addChoice: (choice?: FeedChoice) => void;
-//   removeChoice: (target: FeedChoice) => void;
-//   clearChoices: () => void;
-//   applyBaseUrl: () => void;
-//   refetchFeeds: () => Promise<void>;
-// };
-
 export function errorText(err: unknown): string {
   if (err instanceof ApiError) {
     return `${err.message} [${err.status}]`;
@@ -64,6 +27,30 @@ export function errorText(err: unknown): string {
     return err.message;
   }
   return 'Unknown error';
+}
+
+function normalizeChoice(value: unknown): FeedChoice | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const item = value as Record<string, unknown>;
+  if (
+    typeof item.provider !== 'string' ||
+    typeof item.category !== 'string' ||
+    typeof item.topic !== 'string'
+  ) {
+    return null;
+  }
+
+  const provider = item.provider.toLowerCase();
+  const category = item.category.toLowerCase();
+  const topic = item.topic.toLowerCase();
+  if (!provider || !category || !topic) {
+    return null;
+  }
+
+  return { provider, category, topic };
 }
 
 function readSavedChoices(): FeedChoice[] {
@@ -79,302 +66,16 @@ function readSavedChoices(): FeedChoice[] {
     }
 
     return parsed
-      .filter((item): item is FeedChoice => {
-        if (!item || typeof item !== 'object') {
-          return false;
-        }
-
-        const value = item as Record<string, unknown>;
-        return (
-          typeof value.provider === 'string' &&
-          typeof value.category === 'string' &&
-          typeof value.topic === 'string' &&
-          Boolean(value.provider && value.category && value.topic)
-        );
-      })
-      .map((item) => ({
-        provider: item.provider.toLowerCase(),
-        category: item.category.toLowerCase(),
-        topic: item.topic.toLowerCase(),
-      }));
+      .map(normalizeChoice)
+      .filter((choice): choice is FeedChoice => Boolean(choice));
   } catch {
     return [];
   }
 }
 
-// export function useFeedExperience(defaultBaseUrl: string): FeedExperienceState {
-//   const envUrl = import.meta.env.VITE_API_URL || defaultBaseUrl;
-//   const [baseUrlInput, setBaseUrlInputState] = useState(envUrl);
-//   const [baseUrl, setBaseUrl] = useState(envUrl);
-//   const [limitInput, setLimitInputState] = useState('12');
-
-//   const [savedChoices, setSavedChoices] =
-//     useState<FeedChoice[]>(readSavedChoices);
-//   const authToken = (() => {
-//     try {
-//       const raw = localStorage.getItem('raven.auth.v1');
-//       if (!raw) return null;
-//       const parsed = JSON.parse(raw) as { token?: string };
-//       return parsed?.token ?? null;
-//     } catch {
-//       return null;
-//     }
-//   })();
-//   const isAuthMode = Boolean(authToken);
-//   const [preferencesSyncing, setPreferencesSyncing] = useState(false);
-//   const [preferencesErrorText, setPreferencesErrorText] = useState<
-//     string | null
-//   >(null);
-//   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
-
-//   const readLocalChoicesForMigration = () => {
-//     try {
-//       const raw = localStorage.getItem(FEED_PREFS_KEY);
-//       if (!raw) return [] as FeedPreferenceChoice[];
-//       const parsed = JSON.parse(raw) as FeedPreferenceChoice[];
-//       if (!Array.isArray(parsed)) return [];
-//       return parsed
-//         .filter((item) =>
-//           Boolean(item?.provider && item?.category && item?.topic)
-//         )
-//         .map((item) => ({
-//           provider: String(item.provider).toLowerCase(),
-//           category: String(item.category).toLowerCase(),
-//           topic: String(item.topic).toLowerCase(),
-//         }));
-//     } catch {
-//       return [] as FeedPreferenceChoice[];
-//     }
-//   };
-
-//   const limit = toInt(limitInput, 12);
-//   const client = useMemo(() => api(baseUrl), [baseUrl]);
-
-//   const treeQuery = useQuery({
-//     queryKey: qk.tree(baseUrl),
-//     queryFn: client.tree,
-//   });
-
-//   const providers = useMemo(
-//     () => Object.keys(treeQuery.data?.tree ?? {}),
-//     [treeQuery.data]
-//   );
-//   const feedTree = useMemo(() => treeQuery.data?.tree ?? {}, [treeQuery.data]);
-
-//   useEffect(() => {
-//     if (isAuthMode) {
-//       return;
-//     }
-
-//     setPreferencesLoaded(true);
-//   }, [isAuthMode]);
-
-//   useEffect(() => {
-//     if (!isAuthMode) {
-//       localStorage.setItem(FEED_PREFS_KEY, JSON.stringify(savedChoices));
-//       return;
-//     }
-
-//     if (!authToken || !preferencesLoaded) return;
-
-//     const sync = async () => {
-//       setPreferencesSyncing(true);
-//       setPreferencesErrorText(null);
-//       try {
-//         const body: FeedPreferenceChoice[] = savedChoices.map((choice) => ({
-//           provider: choice.provider,
-//           category: choice.category,
-//           topic: choice.topic,
-//         }));
-//         await client.putUserFeedPreferences(authToken, body);
-//       } catch (err) {
-//         setPreferencesErrorText(errorText(err));
-//       } finally {
-//         setPreferencesSyncing(false);
-//       }
-//     };
-
-//     void sync();
-//   }, [authToken, client, isAuthMode, preferencesLoaded, savedChoices]);
-
-//   useEffect(() => {
-//     if (!isAuthMode || !authToken) {
-//       return;
-//     }
-
-//     let mounted = true;
-//     const pull = async () => {
-//       setPreferencesSyncing(true);
-//       setPreferencesErrorText(null);
-//       try {
-//         const migrationDone =
-//           localStorage.getItem(FEED_PREFS_MIGRATED_KEY) === '1';
-//         let res;
-//         if (!migrationDone) {
-//           const localChoices = readLocalChoicesForMigration();
-//           res = await client.syncLocalPreferencesOnce(authToken, localChoices);
-//           localStorage.setItem(FEED_PREFS_MIGRATED_KEY, '1');
-//         } else {
-//           res = await client.getUserFeedPreferences(authToken);
-//         }
-//         if (!mounted) return;
-//         setSavedChoices(
-//           res.choices.map((choice) => ({
-//             provider: choice.provider,
-//             category: choice.category,
-//             topic: choice.topic,
-//           }))
-//         );
-//         setPreferencesLoaded(true);
-//       } catch (err) {
-//         if (!mounted) return;
-//         setPreferencesErrorText(errorText(err));
-//         setPreferencesLoaded(true);
-//       } finally {
-//         if (mounted) {
-//           setPreferencesSyncing(false);
-//         }
-//       }
-//     };
-
-//     void pull();
-//     return () => {
-//       mounted = false;
-//     };
-//   }, [authToken, client, isAuthMode]);
-
-//   const batchQuery = useQuery({
-//     queryKey: qk.batchRss(baseUrl, savedChoices, limit),
-//     queryFn: () => client.batchRss({ feeds: savedChoices, limit }),
-//     enabled:
-//       !isAuthMode && savedChoices.length > 0 && limit >= 1 && limit <= 30,
-//   });
-
-//   const userFeedQuery = useQuery({
-//     queryKey: qk.userFeed(baseUrl, authToken ?? 'none', limit),
-//     queryFn: () => client.userFeed(authToken as string, limit),
-//     enabled: isAuthMode && Boolean(authToken) && limit >= 1 && limit <= 30,
-//   });
-
-//   const allStories = useMemo(() => {
-//     const stories: FeedStory[] = [];
-//     const seen = new Set<string>();
-
-//     const results = isAuthMode
-//       ? (userFeedQuery.data?.results ?? [])
-//       : (batchQuery.data?.results ?? []);
-
-//     results.forEach((res) => {
-//       res.entries.forEach((entry, entryIdx) => {
-//         const dedupeId = `${String(entry.link ?? '')}|${String(entry.title ?? '')}`;
-//         if (seen.has(dedupeId)) return;
-//         seen.add(dedupeId);
-
-//         stories.push({
-//           provider: res.provider,
-//           category: res.category,
-//           topic: res.topic,
-//           entry,
-//           rankTime: storyTimestamp(entry) || Date.now() - entryIdx,
-//         });
-//       });
-//     });
-
-//     return stories.sort((a, b) => b.rankTime - a.rankTime);
-//   }, [batchQuery.data, isAuthMode, userFeedQuery.data]);
-
-//   const feedLoading = isAuthMode
-//     ? userFeedQuery.isLoading
-//     : batchQuery.isLoading;
-//   const feedErrorTexts = isAuthMode
-//     ? userFeedQuery.error
-//       ? [errorText(userFeedQuery.error)]
-//       : []
-//     : batchQuery.error
-//       ? [errorText(batchQuery.error)]
-//       : [];
-//   const mapRefreshing = treeQuery.isFetching;
-
-//   const addChoice = (choice?: FeedChoice) => {
-//     const nextChoice: FeedChoice = choice ?? {
-//       provider: '',
-//       category: '',
-//       topic: '',
-//     };
-
-//     if (!nextChoice.provider || !nextChoice.category || !nextChoice.topic) {
-//       return;
-//     }
-
-//     setSavedChoices((prev) => {
-//       const exists = prev.some(
-//         (item) =>
-//           item.provider === nextChoice.provider &&
-//           item.category === nextChoice.category &&
-//           item.topic === nextChoice.topic
-//       );
-
-//       if (exists) {
-//         return prev;
-//       }
-
-//       return [...prev, nextChoice];
-//     });
-//   };
-
-//   const removeChoice = (target: FeedChoice) => {
-//     setSavedChoices((prev) =>
-//       prev.filter(
-//         (item) =>
-//           !(
-//             item.provider === target.provider &&
-//             item.category === target.category &&
-//             item.topic === target.topic
-//           )
-//       )
-//     );
-//   };
-
-//   const clearChoices = () => {
-//     setSavedChoices([]);
-//   };
-
-//   const applyBaseUrl = () => {
-//     setBaseUrl(normalizeBaseUrl(baseUrlInput));
-//   };
-
-//   return {
-//     baseUrlInput,
-//     baseUrl,
-//     limitInput,
-//     limit,
-//     providers,
-//     feedTree,
-//     savedChoices,
-//     allStories,
-//     feedLoading,
-//     feedErrorTexts,
-//     mapRefreshing,
-//     providersErrorText: treeQuery.error ? errorText(treeQuery.error) : null,
-//     feedTreeErrorText: treeQuery.error ? 'Failed loading provider tree' : null,
-//     isAuthMode,
-//     preferencesSyncing,
-//     preferencesErrorText,
-//     setBaseUrlInput: setBaseUrlInputState,
-//     setLimitInput: setLimitInputState,
-//     addChoice,
-//     removeChoice,
-//     clearChoices,
-//     applyBaseUrl,
-//     refetchFeeds: async () => {
-//       if (isAuthMode) {
-//         await userFeedQuery.refetch();
-//         return;
-//       }
-//       await batchQuery.refetch();
-//     },
-//   };
-// }
+function saveLocalChoices(savedChoices: FeedChoice[]) {
+  localStorage.setItem(FEED_PREFS_KEY, JSON.stringify(savedChoices));
+}
 
 export function useFeedPreferences(
   client: ReturnType<typeof api>,
@@ -383,34 +84,37 @@ export function useFeedPreferences(
 ) {
   const [savedChoices, setSavedChoices] =
     useState<FeedChoice[]>(readSavedChoices);
-
   const [preferencesSyncing, setPreferencesSyncing] = useState(false);
   const [preferencesErrorText, setPreferencesErrorText] = useState<
     string | null
   >(null);
-  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+  const [remoteLoaded, setRemoteLoaded] = useState(false);
 
-  // Local mode persistence
+  const preferencesLoaded = useMemo(
+    () => (!isAuthMode ? true : remoteLoaded),
+    [isAuthMode, remoteLoaded]
+  );
+
   useEffect(() => {
-    if (!isAuthMode) {
-      localStorage.setItem(FEED_PREFS_KEY, JSON.stringify(savedChoices));
-      setPreferencesLoaded(true);
+    if (isAuthMode) {
+      return;
     }
+    saveLocalChoices(savedChoices);
   }, [isAuthMode, savedChoices]);
 
-  // Pull from backend + migration
   useEffect(() => {
-    if (!isAuthMode || !authToken) return;
+    if (!isAuthMode || !authToken) {
+      return;
+    }
 
     let mounted = true;
-
     const pull = async () => {
       setPreferencesSyncing(true);
+      setPreferencesErrorText(null);
       try {
         const migrationDone =
           localStorage.getItem(FEED_PREFS_MIGRATED_KEY) === '1';
-
-        const res = migrationDone
+        const response = migrationDone
           ? await client.getUserFeedPreferences(authToken)
           : await client.syncLocalPreferencesOnce(
               authToken,
@@ -421,32 +125,37 @@ export function useFeedPreferences(
           localStorage.setItem(FEED_PREFS_MIGRATED_KEY, '1');
         }
 
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
 
-        setSavedChoices(res.choices);
+        setSavedChoices(response.choices);
       } catch (err) {
-        if (mounted) setPreferencesErrorText(errorText(err));
+        if (mounted) {
+          setPreferencesErrorText(errorText(err));
+        }
       } finally {
         if (mounted) {
-          setPreferencesLoaded(true);
+          setRemoteLoaded(true);
           setPreferencesSyncing(false);
         }
       }
     };
 
     void pull();
-
     return () => {
       mounted = false;
     };
-  }, [authToken, isAuthMode, client]);
+  }, [authToken, client, isAuthMode]);
 
-  // Push updates
   useEffect(() => {
-    if (!isAuthMode || !authToken || !preferencesLoaded) return;
+    if (!isAuthMode || !authToken || !preferencesLoaded) {
+      return;
+    }
 
     const sync = async () => {
       setPreferencesSyncing(true);
+      setPreferencesErrorText(null);
       try {
         await client.putUserFeedPreferences(authToken, savedChoices);
       } catch (err) {
@@ -457,15 +166,15 @@ export function useFeedPreferences(
     };
 
     void sync();
-  }, [savedChoices, authToken, isAuthMode, preferencesLoaded, client]);
+  }, [authToken, client, isAuthMode, preferencesLoaded, savedChoices]);
 
   const addChoice = (choice: FeedChoice) => {
     setSavedChoices((prev) => {
       const exists = prev.some(
-        (c) =>
-          c.provider === choice.provider &&
-          c.category === choice.category &&
-          c.topic === choice.topic
+        (item) =>
+          item.provider === choice.provider &&
+          item.category === choice.category &&
+          item.topic === choice.topic
       );
       return exists ? prev : [...prev, choice];
     });
@@ -474,17 +183,19 @@ export function useFeedPreferences(
   const removeChoice = (target: FeedChoice) => {
     setSavedChoices((prev) =>
       prev.filter(
-        (c) =>
+        (item) =>
           !(
-            c.provider === target.provider &&
-            c.category === target.category &&
-            c.topic === target.topic
+            item.provider === target.provider &&
+            item.category === target.category &&
+            item.topic === target.topic
           )
       )
     );
   };
 
-  const clearChoices = () => setSavedChoices([]);
+  const clearChoices = () => {
+    setSavedChoices([]);
+  };
 
   return {
     savedChoices,

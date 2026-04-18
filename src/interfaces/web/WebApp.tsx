@@ -5,10 +5,9 @@ import { InterestPicker } from '../../components/feed/InterestPicker';
 import { StoryCard } from '../../components/feed/StoryCard';
 import type { LocalSavedArticle } from '../../features/auth/useAuth';
 import { useFeedExperience } from '../../features/feed/useFeedExperience';
-import {
-  type FeedStory,
-  errorText,
-} from '../../features/feed/useFeedPreferences';
+import { errorText } from '../../features/feed/useFeedPreferences';
+import { useSavedArticles } from '../../features/savedArticles/useSavedArticles';
+import { findSavedByUrl, storyUrl } from '../../features/savedArticles/utils';
 import type { ThemeState, ThemeVarKey } from '../../features/theme/useTheme';
 
 type WebAppProps = {
@@ -29,6 +28,11 @@ export function WebApp({
   theme,
 }: WebAppProps) {
   const feed = useFeedExperience(defaultBaseUrl);
+  const { toggleSaved } = useSavedArticles({
+    savedArticles,
+    onSaveArticle,
+    onRemoveSavedArticle,
+  });
 
   const colorKeys: { key: ThemeVarKey; label: string }[] = [
     { key: 'bg', label: 'Background' },
@@ -37,29 +41,6 @@ export function WebApp({
     { key: 'primary', label: 'Primary' },
     { key: 'tertiary', label: 'Accent' },
   ];
-
-  const findSavedByUrl = (url: string | undefined) => {
-    if (!url) return null;
-    return savedArticles.find((item) => item.url === url) ?? null;
-  };
-
-  const handleSaveToggle = (story: FeedStory) => {
-    const link = story.entry.link ? String(story.entry.link) : '';
-    if (!link) return;
-    const existing = findSavedByUrl(link);
-    if (existing) {
-      onRemoveSavedArticle(existing.id);
-      return;
-    }
-    onSaveArticle({
-      title: story.entry.title ?? 'Untitled entry',
-      url: link,
-      summary: story.entry.summary,
-      source:
-        story.entry.source ??
-        `${story.provider}/${story.category}/${story.topic}`,
-    });
-  };
 
   return (
     <main className="page-shell web-only">
@@ -126,11 +107,9 @@ export function WebApp({
                   story={story}
                   teaser={true}
                   isSaved={Boolean(
-                    findSavedByUrl(
-                      story.entry.link ? String(story.entry.link) : undefined
-                    )
+                    findSavedByUrl(savedArticles, storyUrl(story))
                   )}
-                  onSaveToggle={handleSaveToggle}
+                  onSaveToggle={toggleSaved}
                   key={`${story.entry.link ?? 'story'}-${idx}`}
                 />
               ))

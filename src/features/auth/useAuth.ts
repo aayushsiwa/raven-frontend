@@ -42,7 +42,7 @@ export type AuthState = {
   ) => FieldValidation;
   login: (username: string, password: string) => Promise<boolean>;
   signup: (username: string, password: string) => Promise<boolean>;
-  oauthLogin: (provider: OAuthProvider, username: string) => Promise<boolean>;
+  oauthLogin: (provider: OAuthProvider) => Promise<boolean>;
   logout: () => Promise<void>;
   saveArticleLocally: (
     article: Omit<LocalSavedArticle, 'id' | 'savedAt'>
@@ -144,12 +144,24 @@ function toErrorText(err: unknown): string {
   return 'Unknown auth error';
 }
 
+function setSessionAndPersistValue(
+  setSession: (value: AuthStore | null) => void,
+  value: AuthStore | null
+) {
+  setSession(value);
+  writeAuthStore(value);
+}
+
 export function useAuth(baseUrl: string): AuthState {
   const [session, setSession] = useState<AuthStore | null>(readAuthStore);
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState<string | null>(null);
 
   const client = useMemo(() => api(baseUrl), [baseUrl]);
+
+  const setSessionAndPersist = (value: AuthStore | null) => {
+    setSessionAndPersistValue(setSession, value);
+  };
 
   useEffect(() => {
     const search = new URLSearchParams(window.location.search);
@@ -175,13 +187,7 @@ export function useAuth(baseUrl: string): AuthState {
     };
 
     void hydrate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client]);
-
-  const setSessionAndPersist = (value: AuthStore | null) => {
-    setSession(value);
-    writeAuthStore(value);
-  };
 
   const login = async (username: string, password: string) => {
     setLoading(true);
@@ -213,7 +219,7 @@ export function useAuth(baseUrl: string): AuthState {
     }
   };
 
-  const oauthLogin = async (provider: OAuthProvider, _username: string) => {
+  const oauthLogin = async (provider: OAuthProvider) => {
     setLoading(true);
     setErrorText(null);
     try {
@@ -241,6 +247,7 @@ export function useAuth(baseUrl: string): AuthState {
       }
     }
     setSessionAndPersist(null);
+    setSavedArticles(readLocalSavedArticles());
   };
 
   const [savedArticles, setSavedArticles] = useState<LocalSavedArticle[]>(
@@ -252,7 +259,6 @@ export function useAuth(baseUrl: string): AuthState {
 
     const token = session?.token;
     if (!token) {
-      setSavedArticles(readLocalSavedArticles());
       return () => {
         mounted = false;
       };
