@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { ApiError, api, type AuthUser, type OAuthLoginBody } from '../../lib/api'
+import { useEffect, useMemo, useState } from 'react'
+import { ApiError, api, type AuthUser } from '../../lib/api'
 
 const AUTH_STORE_KEY = 'raven.auth.v1'
 
@@ -91,16 +91,39 @@ function toErrorText(err: unknown): string {
   return 'Unknown auth error'
 }
 
-function fakeProviderUserId(provider: OAuthProvider, username: string): string {
-  return `${provider}:${username.toLowerCase()}`
-}
-
 export function useAuth(baseUrl: string): AuthState {
   const [session, setSession] = useState<AuthStore | null>(readAuthStore)
   const [loading, setLoading] = useState(false)
   const [errorText, setErrorText] = useState<string | null>(null)
 
   const client = useMemo(() => api(baseUrl), [baseUrl])
+
+  useEffect(() => {
+    const search = new URLSearchParams(window.location.search)
+    const token = search.get('token')
+    if (!token) {
+      return
+    }
+
+    const hydrate = async () => {
+      setLoading(true)
+      setErrorText(null)
+      try {
+        const me = await client.me(token)
+        setSessionAndPersist({ token, user: me.user })
+      } catch (err) {
+        setErrorText(toErrorText(err))
+      } finally {
+        setLoading(false)
+        const url = new URL(window.location.href)
+        url.searchParams.delete('token')
+        window.history.replaceState({}, '', url.toString())
+      }
+    }
+
+    void hydrate()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client])
 
   const setSessionAndPersist = (value: AuthStore | null) => {
     setSession(value)
@@ -137,19 +160,12 @@ export function useAuth(baseUrl: string): AuthState {
     }
   }
 
-  const oauthLogin = async (provider: OAuthProvider, username: string) => {
+  const oauthLogin = async (provider: OAuthProvider, _username: string) => {
     setLoading(true)
     setErrorText(null)
-    const payload: OAuthLoginBody = {
-      provider,
-      provider_user_id: fakeProviderUserId(provider, username),
-      username,
-      display_name: username,
-    }
-
     try {
-      const res = await client.oauthLogin(payload)
-      setSessionAndPersist({ token: res.token, user: res.user })
+      const res = await client.oauthStart(provider, window.location.pathname || '/')
+      window.location.assign(res.url)
       return true
     } catch (err) {
       setErrorText(toErrorText(err))

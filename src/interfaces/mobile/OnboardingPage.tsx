@@ -72,6 +72,10 @@ export function OnboardingPage(props: OnboardingPageProps) {
             {submitted && validation.username ? <small className="field-error">{validation.username}</small> : null}
           </label>
 
+          {mode === 'signup' ? (
+            <small className="muted">Use uppercase, lowercase, digit, symbol in password.</small>
+          ) : null}
+
           <label>
             Password
             <input
@@ -93,7 +97,7 @@ export function OnboardingPage(props: OnboardingPageProps) {
           <button
             type="button"
             className="btn ghost onboarding-oauth"
-            disabled={props.loading || Boolean(validation.username)}
+            disabled={props.loading}
             onClick={() => {
               void props.onOAuth('google', username)
             }}
@@ -103,7 +107,7 @@ export function OnboardingPage(props: OnboardingPageProps) {
           <button
             type="button"
             className="btn ghost onboarding-oauth"
-            disabled={props.loading || Boolean(validation.username)}
+            disabled={props.loading}
             onClick={() => {
               void props.onOAuth('github', username)
             }}
@@ -113,7 +117,7 @@ export function OnboardingPage(props: OnboardingPageProps) {
           <button
             type="button"
             className="btn ghost onboarding-oauth"
-            disabled={props.loading || Boolean(validation.username)}
+            disabled={props.loading}
             onClick={() => {
               void props.onOAuth('discord', username)
             }}

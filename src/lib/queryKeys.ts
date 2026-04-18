@@ -11,6 +11,7 @@ export const qk = {
     const feedKey = feeds.map(f => `${f.provider}:${f.category}:${f.topic}`).sort().join('|')
     return ['batch-rss', baseUrl, feedKey, limit] as const
   },
+  userFeed: (baseUrl: string, token: string, limit: number) => ['user-feed', baseUrl, token, limit] as const,
   subscriptions: (baseUrl: string, channelId?: number) =>
     ['subscriptions', baseUrl, channelId ?? 'all'] as const,
 }

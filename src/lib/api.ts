@@ -44,6 +44,10 @@ export type OAuthLoginBody = {
   avatar_url?: string
 }
 
+export type OAuthStartResponse = {
+  url: string
+}
+
 export type FeedPreferenceChoice = {
   provider: string
   category: string
@@ -98,6 +102,8 @@ export type BatchRssResponse = {
   generated_at: string
   results: RssResponse[]
 }
+
+export type UserFeedResponse = BatchRssResponse
 
 export type Subscription = {
   channel_id: number
@@ -202,6 +208,11 @@ export function api(baseUrl: string) {
         headers: jsonHeaders,
         body: JSON.stringify(payload),
       }),
+    oauthStart: (provider: OAuthLoginBody['provider'], next: string = '/') =>
+      request<OAuthStartResponse>(
+        baseUrl,
+        `/api/v1/auth/oauth/${encodeURIComponent(provider)}/start${queryString({ next })}`,
+      ),
     me: (token: string) =>
       request<{ user: AuthUser }>(baseUrl, '/api/v1/auth/me', {
         headers: {
@@ -222,6 +233,12 @@ export function api(baseUrl: string) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ choices }),
+      }),
+    userFeed: (token: string, limit: number) =>
+      request<UserFeedResponse>(baseUrl, `/api/v1/user/feed${queryString({ limit })}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }),
     health: () => request<HealthResponse>(baseUrl, '/health'),
     providers: () => request<ProvidersResponse>(baseUrl, '/api/v1/providers'),

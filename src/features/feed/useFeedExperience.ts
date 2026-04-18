@@ -212,14 +212,20 @@ export function useFeedExperience(defaultBaseUrl: string): FeedExperienceState {
   const batchQuery = useQuery({
     queryKey: qk.batchRss(baseUrl, savedChoices, limit),
     queryFn: () => client.batchRss({ feeds: savedChoices, limit }),
-    enabled: savedChoices.length > 0 && limit >= 1 && limit <= 30,
+    enabled: !isAuthMode && savedChoices.length > 0 && limit >= 1 && limit <= 30,
+  })
+
+  const userFeedQuery = useQuery({
+    queryKey: qk.userFeed(baseUrl, authToken ?? 'none', limit),
+    queryFn: () => client.userFeed(authToken as string, limit),
+    enabled: isAuthMode && Boolean(authToken) && limit >= 1 && limit <= 30,
   })
 
   const allStories = useMemo(() => {
     const stories: FeedStory[] = []
     const seen = new Set<string>()
 
-    const results = batchQuery.data?.results ?? []
+    const results = isAuthMode ? (userFeedQuery.data?.results ?? []) : (batchQuery.data?.results ?? [])
 
     results.forEach((res) => {
       res.entries.forEach((entry, entryIdx) => {
@@ -238,10 +244,12 @@ export function useFeedExperience(defaultBaseUrl: string): FeedExperienceState {
     })
 
     return stories.sort((a, b) => b.rankTime - a.rankTime)
-  }, [batchQuery.data])
+  }, [batchQuery.data, isAuthMode, userFeedQuery.data])
 
-  const feedLoading = batchQuery.isLoading
-  const feedErrorTexts = batchQuery.error ? [errorText(batchQuery.error)] : []
+  const feedLoading = isAuthMode ? userFeedQuery.isLoading : batchQuery.isLoading
+  const feedErrorTexts = isAuthMode
+    ? (userFeedQuery.error ? [errorText(userFeedQuery.error)] : [])
+    : (batchQuery.error ? [errorText(batchQuery.error)] : [])
   const mapRefreshing = treeQuery.isFetching
 
   const addChoice = (choice?: FeedChoice) => {
@@ -316,6 +324,10 @@ export function useFeedExperience(defaultBaseUrl: string): FeedExperienceState {
     clearChoices,
     applyBaseUrl,
     refetchFeeds: async () => {
+      if (isAuthMode) {
+        await userFeedQuery.refetch()
+        return
+      }
       await batchQuery.refetch()
     },
   }
