@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ApiError, api, type AuthUser } from '../../lib/api'
 
 const AUTH_STORE_KEY = 'raven.auth.v1'
+const SAVED_ARTICLES_KEY = 'raven.saved.articles.v1'
 
 type AuthStore = {
   token: string
@@ -9,6 +10,15 @@ type AuthStore = {
 }
 
 type OAuthProvider = 'google' | 'github' | 'discord'
+
+export type LocalSavedArticle = {
+  id: string
+  title: string
+  url: string
+  summary?: string
+  source?: string
+  savedAt: number
+}
 
 export type FieldValidation = {
   username: string | null
@@ -22,11 +32,14 @@ export type AuthState = {
   token: string | null
   loading: boolean
   errorText: string | null
+  savedArticles: LocalSavedArticle[]
   validateFields: (username: string, password: string, mode: ValidationMode) => FieldValidation
   login: (username: string, password: string) => Promise<boolean>
   signup: (username: string, password: string) => Promise<boolean>
   oauthLogin: (provider: OAuthProvider, username: string) => Promise<boolean>
-  logout: () => void
+  logout: () => Promise<void>
+  saveArticleLocally: (article: Omit<LocalSavedArticle, 'id' | 'savedAt'>) => void
+  removeLocalArticle: (id: string) => void
 }
 
 const USERNAME_RE = /^[a-zA-Z0-9_.-]{3,32}$/
@@ -79,6 +92,21 @@ function writeAuthStore(value: AuthStore | null) {
     return
   }
   localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(value))
+}
+
+function readLocalSavedArticles(): LocalSavedArticle[] {
+  try {
+    const raw = localStorage.getItem(SAVED_ARTICLES_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+function writeLocalSavedArticles(articles: LocalSavedArticle[]) {
+  localStorage.setItem(SAVED_ARTICLES_KEY, JSON.stringify(articles))
 }
 
 function toErrorText(err: unknown): string {
@@ -175,9 +203,41 @@ export function useAuth(baseUrl: string): AuthState {
     }
   }
 
-  const logout = () => {
+  const logout = async () => {
     setErrorText(null)
+    if (session?.token) {
+      try {
+        await client.logout(session.token)
+      } catch {
+        // ignore
+      }
+    }
     setSessionAndPersist(null)
+  }
+
+  const [savedArticles, setSavedArticles] = useState<LocalSavedArticle[]>(readLocalSavedArticles)
+
+  const saveArticleLocally = (article: Omit<LocalSavedArticle, 'id' | 'savedAt'>) => {
+    const newArticle: LocalSavedArticle = {
+      ...article,
+      id: crypto.randomUUID(),
+      savedAt: Date.now(),
+    }
+    setSavedArticles((prev) => {
+      const exists = prev.some((a) => a.url === article.url)
+      if (exists) return prev
+      const next = [...prev, newArticle]
+      writeLocalSavedArticles(next)
+      return next
+    })
+  }
+
+  const removeLocalArticle = (id: string) => {
+    setSavedArticles((prev) => {
+      const next = prev.filter((a) => a.id !== id)
+      writeLocalSavedArticles(next)
+      return next
+    })
   }
 
   return {
@@ -185,10 +245,13 @@ export function useAuth(baseUrl: string): AuthState {
     token: session?.token ?? null,
     loading,
     errorText,
+    savedArticles,
     validateFields,
     login,
     signup,
     oauthLogin,
     logout,
+    saveArticleLocally,
+    removeLocalArticle,
   }
 }

@@ -137,6 +137,26 @@ export type DeleteSubscriptionBody = {
   topic: string
 }
 
+export type SavedArticle = {
+  id: number
+  title: string
+  url: string
+  summary?: string | null
+  source?: string | null
+  saved_at: string
+}
+
+export type SavedArticlesResponse = {
+  articles: SavedArticle[]
+}
+
+export type SaveArticleBody = {
+  title: string
+  url: string
+  summary?: string
+  source?: string
+}
+
 type ApiErrorPayload = {
   detail?: string | Record<string, unknown>
   [key: string]: unknown
@@ -303,5 +323,55 @@ export function api(baseUrl: string) {
           body: JSON.stringify(payload),
         },
       ),
+    logout: (token: string) =>
+      request<{ status: string; user_id: number }>(baseUrl, '/api/v1/auth/logout', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    getSavedArticles: (token: string) =>
+      request<SavedArticlesResponse>(baseUrl, '/api/v1/user/saved-articles', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    saveArticle: (token: string, payload: SaveArticleBody) =>
+      request<{ article: SavedArticle }>(baseUrl, '/api/v1/user/saved-articles', {
+        method: 'POST',
+        headers: {
+          ...jsonHeaders,
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }),
+    deleteSavedArticle: (token: string, articleId: number) =>
+      request<{ status: string }>(baseUrl, `/api/v1/user/saved-articles/${articleId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    getCustomFeeds: (token: string) =>
+      request<{ feeds: unknown[] }>(baseUrl, '/api/v1/user/custom-feeds', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    createCustomFeed: (token: string, payload: { title: string; url: string; category?: string; topic?: string }) =>
+      request<{ feed: unknown }>(baseUrl, '/api/v1/user/custom-feeds', {
+        method: 'POST',
+        headers: {
+          ...jsonHeaders,
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }),
+    getLinkedAccounts: (token: string) =>
+      request<{ accounts: unknown[] }>(baseUrl, '/api/v1/user/linked-accounts', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
   }
 }
