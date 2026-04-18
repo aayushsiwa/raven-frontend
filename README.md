@@ -1,44 +1,77 @@
-# Raven Frontend PWA
+# Raven Dashboard: Premium RSS Reader
 
-TanStack React frontend for Raven backend. Supports installable PWA, feed browsing, RSS preview, subscription create/delete/list.
+The Raven Dashboard is a high-performance, PWA-ready RSS aggregator built for a premium reading experience. It features a responsive design that adapts seamlessly between desktop and mobile interfaces, a serif-first "Reader Mode," and a robust theming engine.
 
-## Stack
+## ✨ Key Features
 
-- React + TypeScript + Vite
-- `@tanstack/react-query`
-- `vite-plugin-pwa`
-- Aceternity-inspired UI components (local lightweight versions)
+- **Omni-Channel Architecture**: Unique adaptive shells for Web and Mobile platforms sharing a common logic core.
+- **Premium Reader Mode**: Clutter-free reading experience with sanitized HTML and high-legibility serif typography.
+- **Smart Theming**: Includes "Dawn Ledger" (light) and "Midnight Dossier" (dark) presets with support for live variable overrides.
+- **PWA Ready**: Fully installable on mobile and desktop with offline shell support.
+- **Interest Discovery**: Hierarchical topic picker to customize your personal signal.
+- **Archive System**: Save stories for later reading with local/cloud sync.
 
-## Run
+## 🏗 Architecture
 
-From `frontend/`:
+The frontend follows a **Feature-Interface** separation pattern:
+
+- **`src/features/`**: Pure logic and state management (Auth, Feed Data, Saved Articles, Theme). These use hooks to expose functionality.
+- **`src/interfaces/`**: Platform-specific layouts.
+  - `shared/`: Route content components used by both platforms.
+  - `web/`: The desktop-optimized application shell.
+  - `mobile/`: The gesture-driven navigation and mobile shell.
+- **`src/routes/`**: Type-safe routing powered by TanStack Router.
+
+## 🛠 Tech Stack
+
+- **Core**: React 19, TypeScript 5, Vite 6
+- **Routing**: TanStack Router
+- **Data Fetching**: TanStack Query (React Query)
+- **Styling**: Tailwind CSS, Framer Motion (for micro-animations)
+- **Icons**: Lucide React
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm (recommended) or npm/yarn
+
+### Configuration
+
+Create a `.env.local` file in the `frontend/` directory:
+
+```env
+VITE_API_URL=http://localhost:8080
+```
+
+### Installation & Development
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-App default backend URL: `http://127.0.0.1:8080`.
-
-## Build
+### Build for Production
 
 ```bash
 pnpm build
 ```
 
-PWA artifacts generated in `dist/` including:
+## 🧪 Developer Workflow
 
-- `manifest.webmanifest`
-- `sw.js`
-- Workbox runtime chunk
+We maintain high code quality with automated checks:
 
-## Install PWA
+- **Run All Checks**: `pnpm run-checks` (Lint, Types, Format)
+- **Linting**: `pnpm lint`
+- **Type Checking**: `pnpm type-check`
+- **Auto-Formatting**: `pnpm format`
 
-1. Open app in Chromium-based browser.
-2. Click `Install PWA` button when prompt available.
-3. Or use browser install icon in address bar.
+## 📱 PWA Installation
 
-## Notes
+Navigate to your hosted instance in a Chromium-based browser and look for the "Install" icon in the address bar, or use the "Add to Home Screen" option on iOS/Android.
 
-- Backend must allow browser access from frontend origin (CORS).
-- `vite-plugin-pwa@1.2.0` shows peer warning with Vite 8, but build works in this repo.
+---
+
+> [!IMPORTANT]
+> When adding new routes, ensure that the route component logic is separated into `src/interfaces/shared/routes/` to ensure full compatibility with the Web/Mobile split architecture.
