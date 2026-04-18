@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { StoryCard } from '../../components/feed/StoryCard'
+import { FeedSkeleton } from '../../components/ui/Skeleton'
 import type { FeedStory } from '../../features/feed/useFeedExperience'
 
 type MobileFeedReaderPageProps = {
@@ -37,7 +38,7 @@ export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
         </button>
       </div>
 
-      {props.isLoading ? <p className="muted">Loading stories...</p> : null}
+      {props.isLoading ? <FeedSkeleton /> : null}
       {props.errorTexts.map((text, idx) => (
         <p key={`mobile-reader-error-${idx}`} className="error">
           {text}
@@ -58,12 +59,12 @@ export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
               />
             )
           })
-        ) : (
+        ) : !props.isLoading ? (
           <div className="mobile-empty">
             <p>No stories yet.</p>
             <p>Open Interests tab. Add topics.</p>
           </div>
-        )}
+        ) : null}
       </div>
     </section>
   )
