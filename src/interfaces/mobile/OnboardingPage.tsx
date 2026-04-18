@@ -145,8 +145,16 @@ export function OnboardingPage(props: OnboardingPageProps) {
             className="w-full max-w-[480px] flex flex-col gap-6"
           >
             {step === 'WELCOME' && (
-              <div className="text-center">
-                <span className="text-[0.9rem] font-extrabold tracking-[0.3em] uppercase text-primary mb-4 block">
+              <div className="text-center flex flex-col items-center">
+                <div className="relative group mb-6">
+                  <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-75 group-hover:scale-100 transition-transform duration-700" />
+                  <img
+                    src="/logo.png"
+                    alt="Raven Logo"
+                    className="w-24 h-24 relative z-10 drop-shadow-premium transition-transform hover:scale-105 duration-500"
+                  />
+                </div>
+                <span className="text-[0.7rem] font-extrabold tracking-[0.5em] uppercase text-primary/60 mb-8 block">
                   Raven
                 </span>
                 <h1 className="font-serif font-bold text-[clamp(2.5rem,8vw,4rem)] leading-[1.05] tracking-tight mb-2 text-text">
@@ -154,7 +162,7 @@ export function OnboardingPage(props: OnboardingPageProps) {
                   <br />
                   Ignore noise.
                 </h1>
-                <p className="text-[1.1rem] text-muted mt-4 leading-relaxed">
+                <p className="text-[1.1rem] text-muted mt-4 leading-relaxed max-w-[400px]">
                   The ultimate reading workspace for thinkers. Choose how you
                   want to experience your data.
                 </p>

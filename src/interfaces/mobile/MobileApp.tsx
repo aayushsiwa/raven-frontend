@@ -42,13 +42,20 @@ export function MobileApp({ onLogout, children }: MobileAppProps) {
       </div>
 
       <header className="sticky top-0 z-50 flex justify-between items-center px-4 py-6 backdrop-blur-3xl bg-panel border-b border-panel-border/20">
-        <div>
-          <p className="uppercase tracking-[0.14em] text-[0.72rem] text-primary font-bold m-0">
-            Raven
-          </p>
-          <h1 className="font-serif italic tracking-[-0.02em] text-[2.2rem] m-0 leading-tight">
-            {tabLabel}
-          </h1>
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="Raven Logo"
+            className="w-8 h-8 drop-shadow-sm"
+          />
+          <div>
+            <p className="uppercase tracking-[0.14em] text-[0.72rem] text-primary font-bold m-0">
+              Raven
+            </p>
+            <h1 className="font-serif italic tracking-[-0.02em] text-[2.2rem] m-0 leading-tight">
+              {tabLabel}
+            </h1>
+          </div>
         </div>
         <div className="flex gap-2">
           {isSettings && (

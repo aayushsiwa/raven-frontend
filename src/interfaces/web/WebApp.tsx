@@ -26,9 +26,16 @@ export function WebApp({ onLogout, children }: WebAppProps) {
 
       <header className="mb-4 py-[1.2rem] px-[0.3rem] flex justify-between items-center mb-12 animate-in fade-in slide-in-from-bottom-5 duration-500">
         <div className="max-w-[600px]">
-          <span className="uppercase tracking-[0.2em] text-[0.72rem] text-primary font-extrabold mb-2 block">
-            Raven
-          </span>
+          <div className="flex items-center gap-3 mb-4">
+            <img
+              src="/logo.png"
+              alt="Raven Logo"
+              className="w-8 h-8 drop-shadow-sm"
+            />
+            <span className="uppercase tracking-[0.2em] text-[0.72rem] text-primary font-extrabold block">
+              Raven
+            </span>
+          </div>
           <h1 className="font-serif italic tracking-[-0.02em] leading-[1.1] text-[3.5rem] mb-2">
             Personal Archive
           </h1>
