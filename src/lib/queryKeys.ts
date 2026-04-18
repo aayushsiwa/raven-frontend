@@ -7,8 +7,10 @@ export const qk = {
     ['topics', baseUrl, provider, category] as const,
   rss: (baseUrl: string, provider: string, category: string, topic: string, limit: number) =>
     ['rss', baseUrl, provider, category, topic, limit] as const,
-  batchRss: (baseUrl: string, feeds: any[], limit: number) =>
-    ['batch-rss', baseUrl, feeds, limit] as const,
+  batchRss: (baseUrl: string, feeds: { provider: string; category: string; topic: string }[], limit: number) => {
+    const feedKey = feeds.map(f => `${f.provider}:${f.category}:${f.topic}`).sort().join('|')
+    return ['batch-rss', baseUrl, feedKey, limit] as const
+  },
   subscriptions: (baseUrl: string, channelId?: number) =>
     ['subscriptions', baseUrl, channelId ?? 'all'] as const,
 }
