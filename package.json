@@ -7,15 +7,21 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:pwa": "tsc -b && vite build --mode production",
-    "lint": "eslint .",
+    "lint": "eslint . --ext ts --ext tsx --ext js",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx}\"",
+    "type-check": "tsc --pretty --noEmit",
+    "run-checks": "pnpm lint && pnpm type-check && pnpm format:check",
     "preview": "vite preview"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.99.0",
     "@tanstack/react-query-devtools": "^5.99.0",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",
+    "prettier": "^3.8.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "workbox-window": "^7.4.0"
