@@ -25,8 +25,10 @@ export function StoryCard({ story, compact = false, teaser = false, onTitleClick
 
   const teaserText = cleanBodyText ? String(cleanBodyText).replace(/<[^>]*>?/gm, '').slice(0, 150) + '...' : ''
 
+  const fullViewClass = !teaser ? 'full-view' : ''
+
   return (
-    <article className={`story-card ${compact ? 'compact' : ''} ${teaser ? 'teaser' : ''}`.trim()}>
+    <article className={`story-card ${compact ? 'compact' : ''} ${teaser ? 'teaser' : ''} ${fullViewClass}`.trim()}>
       <div className="story-headline-wrap">
         <p className="story-tag">
           {story.provider} / {story.category} / {story.topic}

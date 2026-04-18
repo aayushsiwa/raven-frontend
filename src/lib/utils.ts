@@ -47,8 +47,24 @@ export function sanitizeHTML(input: string): string {
   tempDiv.innerHTML = input
  
   // Allowed tags and attributes
-  const allowedTags = new Set(['p', 'br', 'b', 'i', 'strong', 'em', 'a', 'ul', 'ol', 'li'])
-  const allowedAttributes = new Set(['href', 'target', 'rel'])
+  const allowedTags = new Set([
+    'p',
+    'br',
+    'b',
+    'i',
+    'strong',
+    'em',
+    'a',
+    'ul',
+    'ol',
+    'li',
+    'blockquote',
+    'h2',
+    'h3',
+    'h4',
+    'img',
+  ])
+  const allowedAttributes = new Set(['href', 'target', 'rel', 'src', 'alt', 'title', 'loading'])
  
   // Recursively clean nodes
   function cleanNode(node: Node) {
@@ -82,11 +98,21 @@ export function sanitizeHTML(input: string): string {
       // Special handling for anchor tags: ensure target and rel for safety
       if (elem.tagName.toLowerCase() === 'a') {
         const href = elem.getAttribute('href')
-        if (href) {
-          // We could validate the href here, but for simplicity we just set target and rel
+        if (!href || !/^https?:\/\//i.test(href)) {
+          elem.removeAttribute('href')
+        } else {
           elem.setAttribute('target', '_blank')
           elem.setAttribute('rel', 'noopener')
         }
+      }
+
+      if (elem.tagName.toLowerCase() === 'img') {
+        const src = elem.getAttribute('src')
+        if (!src || !/^https?:\/\//i.test(src)) {
+          elem.remove()
+          return
+        }
+        elem.setAttribute('loading', 'lazy')
       }
  
       // Recurse into children

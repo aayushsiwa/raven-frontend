@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
-import { Newspaper, Compass, Settings } from 'lucide-react'
+import { ArrowLeft, Newspaper, Compass, Settings } from 'lucide-react'
 import { InterestPicker } from '../../components/feed/InterestPicker'
 import { useFeedExperience, type FeedStory } from '../../features/feed/useFeedExperience'
 import { MobileFeedReaderPage } from './MobileFeedReaderPage'
@@ -8,11 +8,10 @@ type MobileTab = 'feed' | 'discover' | 'setup'
 
 type MobileAppProps = {
   defaultBaseUrl: string
-  username: string
   onLogout: () => void
 }
 
-export function MobileApp({ defaultBaseUrl, username, onLogout }: MobileAppProps) {
+export function MobileApp({ defaultBaseUrl, onLogout }: MobileAppProps) {
   const feed = useFeedExperience(defaultBaseUrl)
   const [tab, setTab] = useState<MobileTab>('feed')
   const [feedViewMode, setFeedViewMode] = useState<'teaser' | 'full'>('teaser')
@@ -36,6 +35,18 @@ export function MobileApp({ defaultBaseUrl, username, onLogout }: MobileAppProps
   }, [])
 
   const updateNavigation = (newTab: MobileTab, newMode: 'teaser' | 'full', story: FeedStory | null = null) => {
+    const current = window.history.state as { tab?: MobileTab; viewMode?: 'teaser' | 'full'; story?: FeedStory | null } | null
+
+    if (newTab === 'feed' && newMode === 'teaser') {
+      const isAlreadyRootFeed = !current || (current.tab === 'feed' && current.viewMode === 'teaser' && !current.story)
+      if (isAlreadyRootFeed) {
+        setTab('feed')
+        setFeedViewMode('teaser')
+        setSelectedStory(null)
+        return
+      }
+    }
+
     setTab(newTab)
     setFeedViewMode(newMode)
     setSelectedStory(story)
@@ -61,12 +72,11 @@ export function MobileApp({ defaultBaseUrl, username, onLogout }: MobileAppProps
       <header className="mobile-topbar">
         <p className="mobile-eyebrow">The Collector</p>
         <h1>{tabLabel}</h1>
-        <p className="muted">@{username}</p>
-        {tab === 'feed' && feedViewMode === 'full' && (
-          <button className="btn ghost" onClick={handleBack}>
-            Back
+        {((tab === 'feed' && feedViewMode === 'full') || tab === 'setup') ? (
+          <button className="icon-btn" onClick={handleBack} aria-label="Go back">
+            <ArrowLeft size={18} />
           </button>
-        )}
+        ) : null}
         {tab === 'setup' && (
           <button className="btn ghost" onClick={onLogout}>
             Logout

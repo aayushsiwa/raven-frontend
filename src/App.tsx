@@ -12,7 +12,7 @@ function App() {
     <>
       <div className="web-shell">
         {auth.user ? (
-          <WebApp defaultBaseUrl={DEFAULT_BASE_URL} username={auth.user.username} onLogout={auth.logout} />
+          <WebApp defaultBaseUrl={DEFAULT_BASE_URL} onLogout={auth.logout} />
         ) : (
           <OnboardingPage
             loading={auth.loading}
@@ -20,12 +20,13 @@ function App() {
             onLogin={auth.login}
             onSignup={auth.signup}
             onOAuth={auth.oauthLogin}
+            validateFields={auth.validateFields}
           />
         )}
       </div>
       <div className="mobile-shell-wrap">
         {auth.user ? (
-          <MobileApp defaultBaseUrl={DEFAULT_BASE_URL} username={auth.user.username} onLogout={auth.logout} />
+          <MobileApp defaultBaseUrl={DEFAULT_BASE_URL} onLogout={auth.logout} />
         ) : (
           <OnboardingPage
             loading={auth.loading}
@@ -33,6 +34,7 @@ function App() {
             onLogin={auth.login}
             onSignup={auth.signup}
             onOAuth={auth.oauthLogin}
+            validateFields={auth.validateFields}
           />
         )}
       </div>

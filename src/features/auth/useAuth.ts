@@ -10,15 +10,51 @@ type AuthStore = {
 
 type OAuthProvider = 'google' | 'github' | 'discord'
 
+export type FieldValidation = {
+  username: string | null
+  password: string | null
+}
+
+type ValidationMode = 'login' | 'signup'
+
 export type AuthState = {
   user: AuthUser | null
   token: string | null
   loading: boolean
   errorText: string | null
+  validateFields: (username: string, password: string, mode: ValidationMode) => FieldValidation
   login: (username: string, password: string) => Promise<boolean>
   signup: (username: string, password: string) => Promise<boolean>
   oauthLogin: (provider: OAuthProvider, username: string) => Promise<boolean>
   logout: () => void
+}
+
+const USERNAME_RE = /^[a-zA-Z0-9_.-]{3,32}$/
+
+function validateFields(username: string, password: string, mode: ValidationMode): FieldValidation {
+  const uname = username.trim()
+  let usernameErr: string | null = null
+  let passwordErr: string | null = null
+
+  if (!USERNAME_RE.test(uname)) {
+    usernameErr = 'Username must be 3-32 chars: letters, digits, _, -, .'
+  }
+
+  if (password.length < 8 || password.length > 128) {
+    passwordErr = 'Password must be 8-128 chars'
+  } else if (/\s/.test(password)) {
+    passwordErr = 'Password must not contain spaces'
+  } else if (mode === 'signup' && !/[A-Z]/.test(password)) {
+    passwordErr = 'Password needs uppercase letter'
+  } else if (mode === 'signup' && !/[a-z]/.test(password)) {
+    passwordErr = 'Password needs lowercase letter'
+  } else if (mode === 'signup' && !/\d/.test(password)) {
+    passwordErr = 'Password needs digit'
+  } else if (mode === 'signup' && !/[^A-Za-z0-9]/.test(password)) {
+    passwordErr = 'Password needs symbol'
+  }
+
+  return { username: usernameErr, password: passwordErr }
 }
 
 function readAuthStore(): AuthStore | null {
@@ -133,6 +169,7 @@ export function useAuth(baseUrl: string): AuthState {
     token: session?.token ?? null,
     loading,
     errorText,
+    validateFields,
     login,
     signup,
     oauthLogin,

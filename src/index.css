@@ -295,6 +295,13 @@ button:focus {
   box-shadow: 0 16px 30px -18px rgba(25, 28, 29, 0.18);
 }
 
+.story-card.full-view {
+  box-shadow: none;
+  background: transparent;
+  padding: 0.3rem 0;
+  border-radius: 0;
+}
+
 .story-headline-wrap {
   margin-bottom: 0.35rem;
 }
@@ -330,6 +337,23 @@ button:focus {
 
 .story-summary {
   margin: 0.46rem 0 0;
+}
+
+.story-summary img {
+  max-width: 100%;
+  width: min(100%, 640px);
+  height: auto;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: 0.8rem;
+  display: block;
+  margin: 0.8rem 0;
+}
+
+.story-summary p,
+.story-summary li,
+.story-summary blockquote {
+  line-height: 1.7;
 }
 
 .teaser-summary {
@@ -403,7 +427,7 @@ button:focus {
   top: 0;
   z-index: 5;
   padding: 0.75rem 0.2rem 0.5rem;
-  background: linear-gradient(180deg, rgba(248, 249, 250, 0.88), rgba(248, 249, 250, 0.62));
+  background: transparent;
   backdrop-filter: blur(20px);
 }
 
@@ -421,6 +445,19 @@ button:focus {
   font-size: 0.72rem;
   color: var(--primary);
   font-weight: 700;
+}
+
+.icon-btn {
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(231, 232, 233, 0.84);
+  color: #1f3567;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .mobile-content {
@@ -602,6 +639,12 @@ button:focus {
 .onboarding-form {
   display: grid;
   gap: 0.6rem;
+}
+
+.field-error {
+  margin-top: 0.3rem;
+  color: #8f2020;
+  font-size: 0.78rem;
 }
 
 .onboarding-primary {

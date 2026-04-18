@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
+import type { FieldValidation } from '../../features/auth/useAuth'
 
 type AuthMode = 'login' | 'signup'
 type OAuthProvider = 'google' | 'github' | 'discord'
@@ -9,16 +10,22 @@ type OnboardingPageProps = {
   onLogin: (username: string, password: string) => Promise<boolean>
   onSignup: (username: string, password: string) => Promise<boolean>
   onOAuth: (provider: OAuthProvider, username: string) => Promise<boolean>
+  validateFields: (username: string, password: string, mode: AuthMode) => FieldValidation
 }
 
 export function OnboardingPage(props: OnboardingPageProps) {
   const [mode, setMode] = useState<AuthMode>('signup')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+
+  const validation = useMemo(() => props.validateFields(username, password, mode), [props, username, password, mode])
+  const canSubmit = !validation.username && !validation.password
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
-    if (!username || (mode !== 'login' && password.length < 8)) {
+    setSubmitted(true)
+    if (!canSubmit) {
       return
     }
 
@@ -62,6 +69,7 @@ export function OnboardingPage(props: OnboardingPageProps) {
               placeholder="neo_reader"
               autoComplete="username"
             />
+            {submitted && validation.username ? <small className="field-error">{validation.username}</small> : null}
           </label>
 
           <label>
@@ -73,9 +81,10 @@ export function OnboardingPage(props: OnboardingPageProps) {
               placeholder="Minimum 8 chars"
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
             />
+            {submitted && validation.password ? <small className="field-error">{validation.password}</small> : null}
           </label>
 
-          <button className="btn onboarding-primary" type="submit" disabled={props.loading}>
+          <button className="btn onboarding-primary" type="submit" disabled={props.loading || !canSubmit}>
             {mode === 'login' ? 'Log in' : 'Create account'}
           </button>
         </form>
@@ -84,7 +93,7 @@ export function OnboardingPage(props: OnboardingPageProps) {
           <button
             type="button"
             className="btn ghost onboarding-oauth"
-            disabled={props.loading || !username}
+            disabled={props.loading || Boolean(validation.username)}
             onClick={() => {
               void props.onOAuth('google', username)
             }}
@@ -94,7 +103,7 @@ export function OnboardingPage(props: OnboardingPageProps) {
           <button
             type="button"
             className="btn ghost onboarding-oauth"
-            disabled={props.loading || !username}
+            disabled={props.loading || Boolean(validation.username)}
             onClick={() => {
               void props.onOAuth('github', username)
             }}
@@ -104,7 +113,7 @@ export function OnboardingPage(props: OnboardingPageProps) {
           <button
             type="button"
             className="btn ghost onboarding-oauth"
-            disabled={props.loading || !username}
+            disabled={props.loading || Boolean(validation.username)}
             onClick={() => {
               void props.onOAuth('discord', username)
             }}

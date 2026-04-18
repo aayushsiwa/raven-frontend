@@ -52,7 +52,7 @@ export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
             return (
               <StoryCard
                 story={story}
-                compact
+                compact={teaser}
                 teaser={teaser && !isExpanded}
                 onTitleClick={handleTitleClick}
                 key={`${story.entry.link ?? 'story'}-${idx}`}
