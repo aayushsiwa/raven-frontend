@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ApiError, api, type AuthUser } from '../../lib/api'
+import { ApiError, api, type AuthUser, type SavedArticle } from '../../lib/api'
 
 const AUTH_STORE_KEY = 'raven.auth.v1'
 const SAVED_ARTICLES_KEY = 'raven.saved.articles.v1'
@@ -13,6 +13,7 @@ type OAuthProvider = 'google' | 'github' | 'discord'
 
 export type LocalSavedArticle = {
   id: string
+  remoteId?: number
   title: string
   url: string
   summary?: string
@@ -107,6 +108,19 @@ function readLocalSavedArticles(): LocalSavedArticle[] {
 
 function writeLocalSavedArticles(articles: LocalSavedArticle[]) {
   localStorage.setItem(SAVED_ARTICLES_KEY, JSON.stringify(articles))
+}
+
+function mapDbSavedArticle(article: SavedArticle): LocalSavedArticle {
+  const ts = new Date(article.saved_at).getTime()
+  return {
+    id: `db:${article.id}`,
+    remoteId: article.id,
+    title: article.title,
+    url: article.url,
+    summary: article.summary ?? undefined,
+    source: article.source ?? undefined,
+    savedAt: Number.isNaN(ts) ? Date.now() : ts,
+  }
 }
 
 function toErrorText(err: unknown): string {
@@ -217,7 +231,63 @@ export function useAuth(baseUrl: string): AuthState {
 
   const [savedArticles, setSavedArticles] = useState<LocalSavedArticle[]>(readLocalSavedArticles)
 
+  useEffect(() => {
+    let mounted = true
+
+    const token = session?.token
+    if (!token) {
+      setSavedArticles(readLocalSavedArticles())
+      return () => {
+        mounted = false
+      }
+    }
+
+    const pullSaved = async () => {
+      try {
+        const res = await client.getSavedArticles(token)
+        if (!mounted) return
+        setSavedArticles(res.articles.map(mapDbSavedArticle).sort((a, b) => b.savedAt - a.savedAt))
+      } catch (err) {
+        if (!mounted) return
+        setErrorText(toErrorText(err))
+      }
+    }
+
+    void pullSaved()
+
+    return () => {
+      mounted = false
+    }
+  }, [client, session?.token])
+
   const saveArticleLocally = (article: Omit<LocalSavedArticle, 'id' | 'savedAt'>) => {
+    const token = session?.token
+
+    if (token) {
+      if (savedArticles.some((a) => a.url === article.url)) {
+        return
+      }
+
+      void (async () => {
+        try {
+          const res = await client.saveArticle(token, {
+            title: article.title,
+            url: article.url,
+            summary: article.summary,
+            source: article.source,
+          })
+          setSavedArticles((prev) => {
+            if (prev.some((a) => a.url === article.url)) return prev
+            const next = [mapDbSavedArticle(res.article), ...prev]
+            return next.sort((a, b) => b.savedAt - a.savedAt)
+          })
+        } catch (err) {
+          setErrorText(toErrorText(err))
+        }
+      })()
+      return
+    }
+
     const newArticle: LocalSavedArticle = {
       ...article,
       id: crypto.randomUUID(),
@@ -233,6 +303,24 @@ export function useAuth(baseUrl: string): AuthState {
   }
 
   const removeLocalArticle = (id: string) => {
+    const token = session?.token
+    const target = savedArticles.find((a) => a.id === id)
+    if (!target) {
+      return
+    }
+
+    if (token && target.remoteId) {
+      void (async () => {
+        try {
+          await client.deleteSavedArticle(token, target.remoteId as number)
+          setSavedArticles((prev) => prev.filter((a) => a.id !== id))
+        } catch (err) {
+          setErrorText(toErrorText(err))
+        }
+      })()
+      return
+    }
+
     setSavedArticles((prev) => {
       const next = prev.filter((a) => a.id !== id)
       writeLocalSavedArticles(next)
