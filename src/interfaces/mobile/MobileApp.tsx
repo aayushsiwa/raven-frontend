@@ -44,7 +44,7 @@ export function MobileApp({ onLogout, children }: MobileAppProps) {
       <header className="sticky top-0 z-50 flex justify-between items-center px-4 py-6 backdrop-blur-3xl bg-panel border-b border-panel-border/20">
         <div className="flex items-center gap-3">
           <img
-            src="/logo.png"
+            src="/logo.svg"
             alt="Raven Logo"
             className="w-8 h-8 drop-shadow-sm"
           />

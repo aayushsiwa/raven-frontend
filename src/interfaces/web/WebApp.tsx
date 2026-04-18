@@ -28,7 +28,7 @@ export function WebApp({ onLogout, children }: WebAppProps) {
         <div className="max-w-[600px]">
           <div className="flex items-center gap-3 mb-4">
             <img
-              src="/logo.png"
+              src="/logo.svg"
               alt="Raven Logo"
               className="w-8 h-8 drop-shadow-sm"
             />

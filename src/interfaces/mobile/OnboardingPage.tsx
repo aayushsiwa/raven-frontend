@@ -149,7 +149,7 @@ export function OnboardingPage(props: OnboardingPageProps) {
                 <div className="relative group mb-6">
                   <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-75 group-hover:scale-100 transition-transform duration-700" />
                   <img
-                    src="/logo.png"
+                    src="/logo.svg"
                     alt="Raven Logo"
                     className="w-24 h-24 relative z-10 drop-shadow-premium transition-transform hover:scale-105 duration-500"
                   />
