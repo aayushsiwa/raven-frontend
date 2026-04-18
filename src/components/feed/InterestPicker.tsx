@@ -7,6 +7,9 @@ type InterestPickerProps = {
   mapRefreshing: boolean
   providersErrorText: string | null
   feedTreeErrorText: string | null
+  isAuthMode?: boolean
+  preferencesSyncing?: boolean
+  preferencesErrorText?: string | null
   onAddChoice: (choice: FeedChoice) => void
   onRemoveChoice: (choice: FeedChoice) => void
   onClearChoices: () => void
@@ -108,11 +111,16 @@ export function InterestPicker(props: InterestPickerProps) {
       </div>
 
       <p className="picker-status">
-        {props.mapRefreshing ? 'Refreshing hierarchy...' : `${props.savedChoices.length} interests saved`}
+        {props.mapRefreshing
+          ? 'Refreshing hierarchy...'
+          : props.preferencesSyncing
+            ? 'Syncing preferences...'
+            : `${props.savedChoices.length} interests saved (${props.isAuthMode ? 'db' : 'local'})`}
       </p>
 
       {props.providersErrorText ? <p className="error">{props.providersErrorText}</p> : null}
       {props.feedTreeErrorText ? <p className="error">{props.feedTreeErrorText}</p> : null}
+      {props.preferencesErrorText ? <p className="error">{props.preferencesErrorText}</p> : null}
     </section>
   )
 }

@@ -52,6 +52,9 @@ export function WebApp({ defaultBaseUrl, onLogout }: WebAppProps) {
             mapRefreshing={feed.mapRefreshing}
             providersErrorText={feed.providersErrorText}
             feedTreeErrorText={feed.feedTreeErrorText}
+            isAuthMode={feed.isAuthMode}
+            preferencesSyncing={feed.preferencesSyncing}
+            preferencesErrorText={feed.preferencesErrorText}
             onAddChoice={feed.addChoice}
             onRemoveChoice={feed.removeChoice}
             onClearChoices={feed.clearChoices}

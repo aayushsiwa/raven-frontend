@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ApiError, api, type RssEntry } from '../../lib/api'
+import { ApiError, api, type FeedPreferenceChoice, type RssEntry } from '../../lib/api'
 import { qk } from '../../lib/queryKeys'
 import { normalizeBaseUrl, toInt } from '../../lib/utils'
 
@@ -34,6 +34,9 @@ export type FeedExperienceState = {
   mapRefreshing: boolean
   providersErrorText: string | null
   feedTreeErrorText: string | null
+  isAuthMode: boolean
+  preferencesSyncing: boolean
+  preferencesErrorText: string | null
   setBaseUrlInput: (value: string) => void
   setLimitInput: (value: string) => void
   addChoice: (choice?: FeedChoice) => void
@@ -107,6 +110,20 @@ export function useFeedExperience(defaultBaseUrl: string): FeedExperienceState {
   const [limitInput, setLimitInputState] = useState('12')
 
   const [savedChoices, setSavedChoices] = useState<FeedChoice[]>(readSavedChoices)
+  const authToken = (() => {
+    try {
+      const raw = localStorage.getItem('raven.auth.v1')
+      if (!raw) return null
+      const parsed = JSON.parse(raw) as { token?: string }
+      return parsed?.token ?? null
+    } catch {
+      return null
+    }
+  })()
+  const isAuthMode = Boolean(authToken)
+  const [preferencesSyncing, setPreferencesSyncing] = useState(false)
+  const [preferencesErrorText, setPreferencesErrorText] = useState<string | null>(null)
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false)
 
   const limit = toInt(limitInput, 12)
   const client = useMemo(() => api(baseUrl), [baseUrl])
@@ -120,8 +137,77 @@ export function useFeedExperience(defaultBaseUrl: string): FeedExperienceState {
   const feedTree = useMemo(() => treeQuery.data?.tree ?? {}, [treeQuery.data])
 
   useEffect(() => {
-    localStorage.setItem(FEED_PREFS_KEY, JSON.stringify(savedChoices))
-  }, [savedChoices])
+    if (isAuthMode) {
+      return
+    }
+
+    setPreferencesLoaded(true)
+  }, [isAuthMode])
+
+  useEffect(() => {
+    if (!isAuthMode) {
+      localStorage.setItem(FEED_PREFS_KEY, JSON.stringify(savedChoices))
+      return
+    }
+
+    if (!authToken || !preferencesLoaded) return
+
+    const sync = async () => {
+      setPreferencesSyncing(true)
+      setPreferencesErrorText(null)
+      try {
+        const body: FeedPreferenceChoice[] = savedChoices.map((choice) => ({
+          provider: choice.provider,
+          category: choice.category,
+          topic: choice.topic,
+        }))
+        await client.putUserFeedPreferences(authToken, body)
+      } catch (err) {
+        setPreferencesErrorText(errorText(err))
+      } finally {
+        setPreferencesSyncing(false)
+      }
+    }
+
+    void sync()
+  }, [authToken, client, isAuthMode, preferencesLoaded, savedChoices])
+
+  useEffect(() => {
+    if (!isAuthMode || !authToken) {
+      return
+    }
+
+    let mounted = true
+    const pull = async () => {
+      setPreferencesSyncing(true)
+      setPreferencesErrorText(null)
+      try {
+        const res = await client.getUserFeedPreferences(authToken)
+        if (!mounted) return
+        setSavedChoices(
+          res.choices.map((choice) => ({
+            provider: choice.provider,
+            category: choice.category,
+            topic: choice.topic,
+          })),
+        )
+        setPreferencesLoaded(true)
+      } catch (err) {
+        if (!mounted) return
+        setPreferencesErrorText(errorText(err))
+        setPreferencesLoaded(true)
+      } finally {
+        if (mounted) {
+          setPreferencesSyncing(false)
+        }
+      }
+    }
+
+    void pull()
+    return () => {
+      mounted = false
+    }
+  }, [authToken, client, isAuthMode])
 
   const batchQuery = useQuery({
     queryKey: qk.batchRss(baseUrl, savedChoices, limit),
@@ -220,6 +306,9 @@ export function useFeedExperience(defaultBaseUrl: string): FeedExperienceState {
     mapRefreshing,
     providersErrorText: treeQuery.error ? errorText(treeQuery.error) : null,
     feedTreeErrorText: treeQuery.error ? 'Failed loading provider tree' : null,
+    isAuthMode,
+    preferencesSyncing,
+    preferencesErrorText,
     setBaseUrlInput: setBaseUrlInputState,
     setLimitInput: setLimitInputState,
     addChoice,

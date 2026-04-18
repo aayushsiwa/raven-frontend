@@ -44,6 +44,16 @@ export type OAuthLoginBody = {
   avatar_url?: string
 }
 
+export type FeedPreferenceChoice = {
+  provider: string
+  category: string
+  topic: string
+}
+
+export type FeedPreferencesResponse = {
+  choices: FeedPreferenceChoice[]
+}
+
 export type ProvidersResponse = {
   providers: string[]
 }
@@ -197,6 +207,21 @@ export function api(baseUrl: string) {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+      }),
+    getUserFeedPreferences: (token: string) =>
+      request<FeedPreferencesResponse>(baseUrl, '/api/v1/user/feed-preferences', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    putUserFeedPreferences: (token: string, choices: FeedPreferenceChoice[]) =>
+      request<FeedPreferencesResponse>(baseUrl, '/api/v1/user/feed-preferences', {
+        method: 'PUT',
+        headers: {
+          ...jsonHeaders,
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ choices }),
       }),
     health: () => request<HealthResponse>(baseUrl, '/health'),
     providers: () => request<ProvidersResponse>(baseUrl, '/api/v1/providers'),
