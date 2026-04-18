@@ -1,15 +1,19 @@
+import tailwindcss from '@tailwindcss/vite';
+import tanstackRouter from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   plugins: [
+    tailwindcss(),
+    tanstackRouter(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'Raven Feed Console',
+        name: 'Raven',
         short_name: 'Raven',
         description:
           'Installable Raven RSS dashboard for subscriptions and feeds.',

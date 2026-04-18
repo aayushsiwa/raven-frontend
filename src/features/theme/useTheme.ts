@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 const THEME_STORE_KEY = 'raven.theme.v1';
 
-export type ThemePresetId = 'dawn' | 'forest' | 'ink';
+export type ThemePresetId = 'dawn' | 'forest' | 'ink' | 'midnight';
 
 export type ThemeVarKey =
   | 'bg'
@@ -12,7 +12,8 @@ export type ThemeVarKey =
   | 'tertiary'
   | 'surface-low'
   | 'surface-high'
-  | 'panel';
+  | 'panel'
+  | 'panel-border';
 
 export type ThemePreset = {
   id: ThemePresetId;
@@ -38,6 +39,22 @@ const THEME_PRESETS: ThemePreset[] = [
       'surface-low': '#f3f4f5',
       'surface-high': '#e7e8e9',
       panel: 'rgba(255, 255, 255, 0.88)',
+      'panel-border': 'rgba(115, 118, 134, 0.12)',
+    },
+  },
+  {
+    id: 'midnight',
+    label: 'Midnight Dossier',
+    vars: {
+      bg: '#0a0c10',
+      text: '#e2e8f0',
+      muted: '#94a3b8',
+      primary: '#60a5fa',
+      tertiary: '#fbbf24',
+      'surface-low': '#1e293b',
+      'surface-high': '#334155',
+      panel: 'rgba(15, 23, 42, 0.85)',
+      'panel-border': 'rgba(255, 255, 255, 0.1)',
     },
   },
   {
@@ -52,6 +69,7 @@ const THEME_PRESETS: ThemePreset[] = [
       'surface-low': '#e6ede7',
       'surface-high': '#d7e1d8',
       panel: 'rgba(255, 255, 255, 0.9)',
+      'panel-border': 'rgba(63, 83, 69, 0.12)',
     },
   },
   {
@@ -66,6 +84,7 @@ const THEME_PRESETS: ThemePreset[] = [
       'surface-low': '#e9ebf1',
       'surface-high': '#dde1eb',
       panel: 'rgba(255, 255, 255, 0.88)',
+      'panel-border': 'rgba(78, 84, 104, 0.12)',
     },
   },
 ];
@@ -126,7 +145,14 @@ export function useTheme(): ThemeState {
         root.style.setProperty(`--${key}`, value);
       }
     );
-  }, [resolvedVars]);
+
+    // Add .dark class for midnight theme
+    if (themeStore.presetId === 'midnight') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [resolvedVars, themeStore.presetId]);
 
   useEffect(() => {
     writeThemeStore(themeStore);

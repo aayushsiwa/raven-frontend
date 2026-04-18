@@ -1,59 +1,45 @@
-import { Compass, Newspaper, Settings } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { Bookmark, Compass, Newspaper, Settings } from 'lucide-react';
 
-import type { MobileTab } from './MobileApp';
-
-export function Navbar({
-  tab,
-  setTab,
-}: {
-  tab: MobileTab;
-  setTab: (tab: MobileTab) => void;
-}) {
-  const updateNavigation = (newTab: MobileTab) => {
-    const current = window.history.state as { tab?: MobileTab } | null;
-
-    if (newTab === 'feed') {
-      const isAlreadyRootFeed = !current || current.tab === 'feed';
-      if (isAlreadyRootFeed) {
-        setTab('feed');
-        return;
-      }
-    }
-
-    setTab(newTab);
-    window.history.pushState({ tab: newTab }, '');
-  };
-
+export function Navbar() {
   return (
-    <nav className="mobile-bottom-nav" aria-label="Bottom navigation">
-      <button
-        className={tab === 'feed' ? 'active' : ''}
-        onClick={() => updateNavigation('feed')}
+    <nav
+      className="fixed left-1/2 bottom-[calc(10px+env(safe-area-inset-bottom))] -translate-x-1/2 w-[min(94vw,430px)] grid grid-cols-4 gap-[0.45rem] p-[0.45rem] rounded-2xl bg-panel border border-panel-border backdrop-blur-lg shadow-premium z-50"
+      aria-label="Bottom navigation"
+    >
+      <Link
+        to="/"
+        activeProps={{ className: 'bg-primary/10 text-primary' }}
+        activeOptions={{ exact: true }}
+        className="flex flex-col items-center justify-center gap-1 border-0 rounded-[0.78rem] py-[0.62rem] px-[0.4rem] bg-transparent text-[#5a6072] font-semibold text-[0.76rem] no-underline transition-colors"
       >
         <Newspaper size={16} />
         <span>Library</span>
-      </button>
-      <button
-        className={tab === 'discover' ? 'active' : ''}
-        onClick={() => updateNavigation('discover')}
+      </Link>
+      <Link
+        to="/discover"
+        activeProps={{ className: 'bg-primary/10 text-primary' }}
+        className="flex flex-col items-center justify-center gap-1 border-0 rounded-[0.78rem] py-[0.62rem] px-[0.4rem] bg-transparent text-[#5a6072] font-semibold text-[0.76rem] no-underline transition-colors"
       >
         <Compass size={16} />
         <span>Discover</span>
-      </button>
-      <button
-        className={tab === 'saved' ? 'active' : ''}
-        onClick={() => updateNavigation('saved')}
+      </Link>
+      <Link
+        to="/saved"
+        activeProps={{ className: 'bg-primary/10 text-primary' }}
+        className="flex flex-col items-center justify-center gap-1 border-0 rounded-[0.78rem] py-[0.62rem] px-[0.4rem] bg-transparent text-[#5a6072] font-semibold text-[0.76rem] no-underline transition-colors"
       >
-        <Newspaper size={16} />
+        <Bookmark size={16} />
         <span>Saved</span>
-      </button>
-      <button
-        className={tab === 'setup' ? 'active' : ''}
-        onClick={() => updateNavigation('setup')}
+      </Link>
+      <Link
+        to="/settings"
+        activeProps={{ className: 'bg-primary/10 text-primary' }}
+        className="flex flex-col items-center justify-center gap-1 border-0 rounded-[0.78rem] py-[0.62rem] px-[0.4rem] bg-transparent text-[#5a6072] font-semibold text-[0.76rem] no-underline transition-colors"
       >
         <Settings size={16} />
         <span>Settings</span>
-      </button>
+      </Link>
     </nav>
   );
 }

@@ -1,3 +1,5 @@
+import { RefreshCw } from 'lucide-react';
+
 import { StoryCard } from '../../components/feed/StoryCard';
 import { FeedSkeleton } from '../../components/ui/Skeleton';
 import type { FeedStory } from '../../features/feed/useFeedPreferences';
@@ -14,26 +16,35 @@ type MobileFeedReaderPageProps = {
 
 export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
   return (
-    <section className="mobile-feed-reader">
-      <div className="mobile-feed-head">
-        <p>Library - {props.stories.length} stories</p>
+    <section className="flex flex-col gap-4 p-4 pb-24 animate-in fade-in slide-in-from-bottom-5 duration-500">
+      <div className="flex justify-between items-center mb-2 px-1">
+        <span className="uppercase tracking-[0.14em] text-[0.72rem] text-primary font-extrabold m-0 opacity-60">
+          Archive - {props.stories.length} stories
+        </span>
         <button
-          className="btn ghost"
+          className="px-3 py-1.5 rounded-lg bg-surface-low text-primary text-[0.8rem] font-bold border border-panel-border flex items-center gap-2 active:scale-95 transition-transform"
           onClick={props.onRefresh}
           disabled={!props.canRefresh}
         >
+          <RefreshCw
+            size={14}
+            className={props.isLoading ? 'animate-spin' : ''}
+          />{' '}
           Refresh
         </button>
       </div>
 
       {props.isLoading ? <FeedSkeleton /> : null}
       {props.errorTexts.map((text, idx) => (
-        <p key={`mobile-reader-error-${idx}`} className="error">
+        <p
+          key={`mobile-reader-error-${idx}`}
+          className="text-red-500 bg-red-500/10 p-3 rounded-xl border border-red-500/20 text-[0.9rem] font-bold"
+        >
           {text}
         </p>
       ))}
 
-      <div className="story-stack">
+      <div className="flex flex-col gap-3">
         {props.stories.length ? (
           props.stories.map((story, idx) => (
             <StoryCard
@@ -46,9 +57,11 @@ export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
             />
           ))
         ) : !props.isLoading ? (
-          <div className="mobile-empty">
-            <p>No stories yet.</p>
-            <p>Open Interests tab. Add topics.</p>
+          <div className="p-12 rounded-2xl bg-panel border border-dashed border-panel-border text-center flex flex-col items-center justify-center gap-2 shadow-sm">
+            <p className="font-bold text-text/80">No stories yet.</p>
+            <p className="text-muted text-[0.9rem]">
+              Open Interests tab and add topics to begin.
+            </p>
           </div>
         ) : null}
       </div>

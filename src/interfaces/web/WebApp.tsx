@@ -1,14 +1,11 @@
+import { motion } from 'framer-motion';
+import { LogOut } from 'lucide-react';
+import React from 'react';
+
 import { BackgroundBeams } from '../../components/aceternity/BackgroundBeams';
-import { CardSpotlight } from '../../components/aceternity/CardSpotlight';
 import { Spotlight } from '../../components/aceternity/Spotlight';
-import { InterestPicker } from '../../components/feed/InterestPicker';
-import { StoryCard } from '../../components/feed/StoryCard';
 import type { LocalSavedArticle } from '../../features/auth/useAuth';
-import { useFeedExperience } from '../../features/feed/useFeedExperience';
-import { errorText } from '../../features/feed/useFeedPreferences';
-import { useSavedArticles } from '../../features/savedArticles/useSavedArticles';
-import { findSavedByUrl, storyUrl } from '../../features/savedArticles/utils';
-import type { ThemeState, ThemeVarKey } from '../../features/theme/useTheme';
+import type { ThemeState } from '../../features/theme/useTheme';
 
 type WebAppProps = {
   defaultBaseUrl: string;
@@ -17,201 +14,44 @@ type WebAppProps = {
   onSaveArticle: (article: Omit<LocalSavedArticle, 'id' | 'savedAt'>) => void;
   onRemoveSavedArticle: (id: string) => void;
   theme: ThemeState;
+  children: React.ReactNode;
 };
 
-export function WebApp({
-  defaultBaseUrl,
-  onLogout,
-  savedArticles,
-  onSaveArticle,
-  onRemoveSavedArticle,
-  theme,
-}: WebAppProps) {
-  const feed = useFeedExperience(defaultBaseUrl);
-  const { toggleSaved } = useSavedArticles({
-    savedArticles,
-    onSaveArticle,
-    onRemoveSavedArticle,
-  });
-
-  const colorKeys: { key: ThemeVarKey; label: string }[] = [
-    { key: 'bg', label: 'Background' },
-    { key: 'text', label: 'Text' },
-    { key: 'muted', label: 'Muted' },
-    { key: 'primary', label: 'Primary' },
-    { key: 'tertiary', label: 'Accent' },
-  ];
-
+export function WebApp({ onLogout, children }: WebAppProps) {
   return (
-    <main className="page-shell web-only">
+    <main className="relative max-w-[1140px] mx-auto px-4 py-8 pb-12 hidden md:block">
       <BackgroundBeams />
-      <Spotlight className="spot-left" />
-      <Spotlight className="spot-right" />
+      <Spotlight className="absolute w-[400px] h-[400px] rounded-full blur-[60px] opacity-[0.24] pointer-events-none -z-10 top-2.5 -left-[120px] bg-primary" />
+      <Spotlight className="absolute w-[400px] h-[400px] rounded-full blur-[60px] opacity-[0.24] pointer-events-none -z-10 top-[120px] -right-[140px] bg-tertiary" />
 
-      <header className="hero">
-        <p className="eyebrow">Feed Viewer</p>
-        <h1>Raven Feed Viewer</h1>
-        <p>Desktop web dashboard for multi-interest personalized feed.</p>
-        <button className="btn ghost" onClick={onLogout}>
-          Logout
+      <header className="mb-4 py-[1.2rem] px-[0.3rem] flex justify-between items-center mb-12 animate-in fade-in slide-in-from-bottom-5 duration-500">
+        <div className="max-w-[600px]">
+          <span className="uppercase tracking-[0.2em] text-[0.72rem] text-primary font-extrabold mb-2 block">
+            Raven
+          </span>
+          <h1 className="font-serif italic tracking-[-0.02em] leading-[1.1] text-[3.5rem] mb-2">
+            Personal Archive
+          </h1>
+          <p className="text-muted text-[1.1rem]">
+            Desktop command center for multi-interest personalized signal.
+          </p>
+        </div>
+        <button
+          className="flex items-center gap-2 px-[0.92rem] py-[0.6rem] rounded-[0.75rem] font-semibold transition-all duration-120 hover:brightness-110 active:scale-95 bg-surface-low text-primary border border-panel-border backdrop-blur-md"
+          onClick={onLogout}
+        >
+          <LogOut size={18} /> Logout
         </button>
       </header>
 
-      <section className="grid two-col">
-        <CardSpotlight
-          title="My Interests"
-          subtitle="Select multiple topics for personalized feed"
-        >
-          <InterestPicker
-            feedTree={feed.feedTree}
-            savedChoices={feed.savedChoices}
-            mapRefreshing={feed.mapRefreshing}
-            providersErrorText={feed.error ? errorText(feed.error) : null}
-            feedTreeErrorText={
-              feed.error ? 'Failed loading provider tree' : null
-            }
-            isAuthMode={feed.isAuthMode}
-            preferencesSyncing={feed.preferencesSyncing}
-            preferencesErrorText={feed.preferencesErrorText}
-            onAddChoice={feed.addChoice}
-            onRemoveChoice={feed.removeChoice}
-            onClearChoices={feed.clearChoices}
-          />
-        </CardSpotlight>
-
-        <CardSpotlight
-          title="For You"
-          subtitle="Merged stories from selected interests"
-          action={
-            <button
-              className="btn ghost"
-              onClick={() => {
-                void feed.refetch();
-              }}
-              disabled={!feed.savedChoices.length}
-            >
-              Refetch
-            </button>
-          }
-        >
-          {feed.feedLoading ? <p>Loading feed entries...</p> : null}
-          {feed.feedErrorTexts.map((text, idx) => (
-            <p key={`web-feed-error-${idx}`} className="error">
-              {text}
-            </p>
-          ))}
-          <div className="entries">
-            {feed.allStories.length ? (
-              feed.allStories.map((story, idx) => (
-                <StoryCard
-                  story={story}
-                  teaser={true}
-                  isSaved={Boolean(
-                    findSavedByUrl(savedArticles, storyUrl(story))
-                  )}
-                  onSaveToggle={toggleSaved}
-                  key={`${story.entry.link ?? 'story'}-${idx}`}
-                />
-              ))
-            ) : (
-              <p className="muted">
-                No feed yet. Add interests to load stories.
-              </p>
-            )}
-          </div>
-        </CardSpotlight>
-
-        <CardSpotlight
-          title="Saved Articles"
-          subtitle="Stories you bookmarked for later"
-        >
-          <div className="saved-list">
-            {savedArticles.length ? (
-              savedArticles
-                .slice()
-                .sort((a, b) => b.savedAt - a.savedAt)
-                .map((article) => (
-                  <article className="saved-item" key={article.id}>
-                    <div>
-                      <h3>{article.title}</h3>
-                      {article.source ? (
-                        <p className="saved-meta">{article.source}</p>
-                      ) : null}
-                    </div>
-                    <div className="saved-actions">
-                      <a
-                        className="story-link"
-                        href={article.url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Open
-                      </a>
-                      <button
-                        className="btn ghost"
-                        onClick={() => onRemoveSavedArticle(article.id)}
-                        type="button"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </article>
-                ))
-            ) : (
-              <p className="muted">
-                No saved articles yet. Tap Save on any story.
-              </p>
-            )}
-          </div>
-        </CardSpotlight>
-
-        <CardSpotlight
-          title="Theme Settings"
-          subtitle="Pick preset, then tweak core colors"
-        >
-          <section className="settings-accordion web-settings-accordion">
-            <details className="settings-section" open>
-              <summary>Theme Presets</summary>
-              <div className="settings-section-body theme-presets-grid">
-                {theme.presets.map((preset) => (
-                  <button
-                    key={preset.id}
-                    className={`btn ghost theme-preset-btn ${theme.presetId === preset.id ? 'active' : ''}`.trim()}
-                    onClick={() => theme.setPreset(preset.id)}
-                    type="button"
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </details>
-            <details className="settings-section">
-              <summary>Theme Colors</summary>
-              <div className="settings-section-body theme-vars-grid">
-                {colorKeys.map((item) => (
-                  <label key={item.key} className="theme-var-field">
-                    <span>{item.label}</span>
-                    <input
-                      type="color"
-                      value={theme.resolvedVars[item.key]}
-                      onChange={(event) =>
-                        theme.setVar(item.key, event.currentTarget.value)
-                      }
-                    />
-                  </label>
-                ))}
-                <button
-                  className="btn ghost"
-                  onClick={theme.resetOverrides}
-                  type="button"
-                >
-                  Reset custom colors
-                </button>
-              </div>
-            </details>
-          </section>
-        </CardSpotlight>
-      </section>
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="grid grid-cols-12 gap-8"
+      >
+        {children}
+      </motion.section>
     </main>
   );
 }
