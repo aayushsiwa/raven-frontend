@@ -15,7 +15,7 @@ export function AnimatedSkeleton({
 
   return (
     <motion.div
-      className={`bg-slate-200/60 ${baseClasses[variant]} ${className}`}
+      className={`bg-surface-high/60 ${baseClasses[variant]} ${className}`}
       animate={{
         opacity: [0.5, 1, 0.5],
       }}
@@ -37,7 +37,7 @@ export function FeedSkeleton() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: i * 0.1 }}
-          className="rounded-xl bg-white/80 p-4 border border-slate-200/50"
+          className="rounded-xl bg-panel p-4 border border-panel-border shadow-premium/5"
         >
           <div className="flex items-center gap-2 mb-3">
             <AnimatedSkeleton className="h-3 w-12" />
@@ -63,7 +63,7 @@ export function InterestPickerSkeleton() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: i * 0.15 }}
-          className="rounded-lg border border-slate-200/50 p-3"
+          className="rounded-lg border border-panel-border p-3 bg-panel/50"
         >
           <AnimatedSkeleton className="h-5 w-24 mb-2" />
           <div className="flex flex-wrap gap-2">

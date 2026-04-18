@@ -16,7 +16,7 @@ type MobileFeedReaderPageProps = {
 
 export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
   return (
-    <section className="flex flex-col gap-4 p-4 pb-24 animate-in fade-in slide-in-from-bottom-5 duration-500">
+    <section className="flex flex-col gap-4 pt-4 pb-24 animate-in fade-in slide-in-from-bottom-5 duration-500">
       <div className="flex justify-between items-center mb-2 px-1">
         <span className="uppercase tracking-[0.14em] text-[0.72rem] text-primary font-extrabold m-0 opacity-60">
           Archive - {props.stories.length} stories

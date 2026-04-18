@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StoryRouteImport } from './routes/story'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as IndexRouteImport } from './routes/index'
 
+const StoryRoute = StoryRouteImport.update({
+  id: '/story',
+  path: '/story',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/discover': typeof DiscoverRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
+  '/story': typeof StoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/discover': typeof DiscoverRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
+  '/story': typeof StoryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/discover': typeof DiscoverRoute
   '/saved': typeof SavedRoute
   '/settings': typeof SettingsRoute
+  '/story': typeof StoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/discover' | '/saved' | '/settings'
+  fullPaths: '/' | '/discover' | '/saved' | '/settings' | '/story'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/discover' | '/saved' | '/settings'
-  id: '__root__' | '/' | '/discover' | '/saved' | '/settings'
+  to: '/' | '/discover' | '/saved' | '/settings' | '/story'
+  id: '__root__' | '/' | '/discover' | '/saved' | '/settings' | '/story'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +76,18 @@ export interface RootRouteChildren {
   DiscoverRoute: typeof DiscoverRoute
   SavedRoute: typeof SavedRoute
   SettingsRoute: typeof SettingsRoute
+  StoryRoute: typeof StoryRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/story': {
+      id: '/story'
+      path: '/story'
+      fullPath: '/story'
+      preLoaderRoute: typeof StoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiscoverRoute: DiscoverRoute,
   SavedRoute: SavedRoute,
   SettingsRoute: SettingsRoute,
+  StoryRoute: StoryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

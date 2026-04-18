@@ -9,7 +9,7 @@ type SavedArticlesPageProps = {
 
 export function SavedArticlesPage(props: SavedArticlesPageProps) {
   return (
-    <section className="flex flex-col gap-6 p-5 pb-24 animate-in fade-in slide-in-from-bottom-5 duration-500">
+    <section className="flex flex-col gap-6 pt-5 pb-24 animate-in fade-in slide-in-from-bottom-5 duration-500">
       <div className="flex justify-between items-center px-1">
         <h3 className="font-serif italic text-[1.8rem]">Archive</h3>
         <span className="uppercase tracking-widest text-[0.7rem] text-primary font-bold opacity-70">

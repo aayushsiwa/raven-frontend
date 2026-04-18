@@ -10,7 +10,7 @@ type DiscoverPageProps = {
 
 export function DiscoverPage(props: DiscoverPageProps) {
   return (
-    <section className="grid gap-6 p-5 pb-24 animate-in fade-in slide-in-from-bottom-5 duration-500">
+    <section className="grid gap-6 pt-5 pb-24 animate-in fade-in slide-in-from-bottom-5 duration-500">
       <div className="p-6 rounded-2xl bg-primary/5 border border-primary/10 backdrop-blur-3xl shadow-premium mb-2">
         <h3 className="font-serif italic text-[1.8rem] flex items-center gap-3">
           <Sparkles size={24} className="text-primary" /> Curated Signal

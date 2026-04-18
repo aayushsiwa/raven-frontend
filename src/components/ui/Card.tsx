@@ -117,7 +117,7 @@ export function Skeleton({ className, animate = true }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'rounded-lg bg-slate-200/60',
+        'rounded-lg bg-surface-high/60',
         animate && 'animate-pulse',
         className
       )}
@@ -129,7 +129,7 @@ export function CardSkeleton({ className }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'rounded-2xl bg-white/90 p-4 border border-slate-200/60 shadow-lg',
+        'rounded-2xl bg-panel p-4 border border-panel-border shadow-premium/5',
         className
       )}
     >
@@ -151,7 +151,7 @@ export function StoryCardSkeleton({ className }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'rounded-xl bg-white/90 p-4 border border-slate-200/50',
+        'rounded-xl bg-panel p-4 border border-panel-border shadow-premium/5',
         className
       )}
     >

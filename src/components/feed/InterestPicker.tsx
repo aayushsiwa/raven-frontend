@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import type { FeedChoice } from '../../features/feed/useFeedPreferences';
+import { formatProvider, formatCategory } from '../../features/feed/constants';
 
 type InterestPickerProps = {
   feedTree: Record<string, Record<string, string[]>>;
@@ -27,7 +28,7 @@ export function InterestPicker(props: InterestPickerProps) {
       className={`max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-panel-border ${props.className ?? ''}`.trim()}
     >
       <div className="flex justify-between items-center mb-4">
-        <p className="uppercase tracking-[0.14em] text-[0.72rem] text-primary font-bold m-0">
+        <p className="uppercase tracking-[0.14em] text-[0.72rem] text-primary font-bold m-0 px-4">
           Your Selection
         </p>
         <button
@@ -39,7 +40,7 @@ export function InterestPicker(props: InterestPickerProps) {
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6 px-4">
         {props.savedChoices.length ? (
           props.savedChoices.map((choice) => {
             const key = `${choice.provider}/${choice.category}/${choice.topic}`;
@@ -61,7 +62,7 @@ export function InterestPicker(props: InterestPickerProps) {
         )}
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid gap-3 px-0">
         {providers.map((provider) => {
           const categories = Object.keys(props.feedTree[provider] ?? {});
 
@@ -78,7 +79,7 @@ export function InterestPicker(props: InterestPickerProps) {
               }}
             >
               <summary className="px-4 py-3 font-bold text-[1rem] cursor-pointer list-none flex justify-between items-center hover:bg-surface-low transition-colors">
-                {provider}
+                {formatProvider(provider)}
               </summary>
               <div className="p-3 grid gap-2 bg-surface-low/30">
                 {categories.map((category) => {
@@ -98,7 +99,7 @@ export function InterestPicker(props: InterestPickerProps) {
                       }}
                     >
                       <summary className="px-3 py-2.5 font-semibold text-[0.9rem] cursor-pointer list-none flex justify-between items-center hover:bg-surface-low transition-colors">
-                        {category}
+                        {formatCategory(category)}
                       </summary>
                       <div className="p-3 flex flex-wrap gap-2 bg-surface-low/20">
                         {topics.map((topic) => {
@@ -144,7 +145,7 @@ export function InterestPicker(props: InterestPickerProps) {
         })}
       </div>
 
-      <div className="mt-6 pt-4 border-t border-panel-border">
+      <div className="mt-6 pt-4 border-t border-panel-border px-4">
         <p className="text-[0.8rem] font-bold text-primary/60 m-0">
           {props.mapRefreshing
             ? 'Refreshing hierarchy...'

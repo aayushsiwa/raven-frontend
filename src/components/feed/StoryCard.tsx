@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { Bookmark, BookmarkCheck, ExternalLink } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 
 import type { FeedStory } from '../../features/feed/useFeedPreferences';
+import { formatProvider, formatCategory } from '../../features/feed/constants';
 import { formatDate, sanitizeHTML } from '../../lib/utils';
 
 type StoryCardProps = {
@@ -21,6 +23,7 @@ export function StoryCard({
   isSaved = false,
   onSaveToggle,
 }: StoryCardProps) {
+  const navigate = useNavigate();
   const publishedDate =
     story.entry.published_iso ??
     story.entry.published ??
@@ -46,18 +49,43 @@ export function StoryCard({
     ? 'shadow-none bg-transparent p-0 rounded-none'
     : '';
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // If user is selecting text, don't navigate
+    if (window.getSelection()?.toString()) return;
+    
+    // Don't navigate if clicking on buttons or links
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a')) {
+      return;
+    }
+
+    void navigate({
+      to: '/story',
+      search: {
+        title: story.entry.title ?? '',
+        url: story.entry.link ?? '',
+        content: String(story.entry.content_text ?? story.entry.summary ?? ''),
+        provider: story.provider,
+        category: story.category,
+        topic: story.topic,
+        published: publishedDate,
+      },
+    });
+  };
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2, transition: { duration: 0.2 } }}
-      className={`relative p-6 bg-panel border border-panel-border rounded-[1rem] shadow-premium transition-all duration-200 ${compact ? 'rounded-[1rem] p-4 shadow-md' : ''} ${teaser ? 'mb-4' : ''} ${fullViewClass}`.trim()}
+      onClick={handleCardClick}
+      className={`relative p-6 bg-panel border border-panel-border rounded-[1rem] shadow-premium transition-all duration-200 cursor-pointer ${compact ? 'rounded-[1rem] p-4 shadow-md' : ''} ${teaser ? 'mb-4' : ''} ${fullViewClass}`.trim()}
     >
       <div className="flex justify-between items-start gap-4">
         <div className="flex-1">
           <p className="text-[0.65rem] uppercase tracking-wider text-tertiary font-bold mb-2">
-            {story.provider} <span className="opacity-40 mx-1">•</span>{' '}
-            {story.category} <span className="opacity-40 mx-1">•</span>{' '}
+            {formatProvider(story.provider)} <span className="opacity-40 mx-1">•</span>{' '}
+            {formatCategory(story.category)} <span className="opacity-40 mx-1">•</span>{' '}
             {story.topic}
           </p>
           {onTitleClick ? (

@@ -29,7 +29,7 @@ export function SettingsPage(props: SettingsPageProps) {
   ];
 
   return (
-    <section className="grid gap-4 p-5 pb-24 animate-in fade-in slide-in-from-bottom-5 duration-500">
+    <section className="grid gap-4 pt-5 pb-24 animate-in fade-in slide-in-from-bottom-5 duration-500">
       <details
         className="rounded-2xl bg-panel border border-panel-border backdrop-blur-3xl shadow-sm overflow-hidden group"
         open
@@ -57,7 +57,7 @@ export function SettingsPage(props: SettingsPageProps) {
 
       <details
         className="rounded-2xl bg-panel border border-panel-border backdrop-blur-3xl shadow-sm overflow-hidden group"
-        open
+        // open
       >
         <summary className="px-5 py-4 font-semibold cursor-pointer list-none flex justify-between items-center hover:bg-white/5 transition-colors">
           Theme Presets{' '}
