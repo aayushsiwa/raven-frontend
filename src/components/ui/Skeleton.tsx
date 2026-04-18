@@ -1,17 +1,17 @@
-import { motion } from 'framer-motion'
+import { motion } from 'framer-motion';
 
-export function AnimatedSkeleton({ 
+export function AnimatedSkeleton({
   className = '',
-  variant = 'rect'
-}: { 
-  className?: string
-  variant?: 'rect' | 'text' | 'circle'
+  variant = 'rect',
+}: {
+  className?: string;
+  variant?: 'rect' | 'text' | 'circle';
 }) {
   const baseClasses = {
     rect: 'rounded-lg',
     text: 'rounded h-4',
-    circle: 'rounded-full'
-  }
+    circle: 'rounded-full',
+  };
 
   return (
     <motion.div
@@ -25,7 +25,7 @@ export function AnimatedSkeleton({
         ease: 'easeInOut',
       }}
     />
-  )
+  );
 }
 
 export function FeedSkeleton() {
@@ -51,7 +51,7 @@ export function FeedSkeleton() {
         </motion.div>
       ))}
     </div>
-  )
+  );
 }
 
 export function InterestPickerSkeleton() {
@@ -75,5 +75,5 @@ export function InterestPickerSkeleton() {
         </motion.div>
       ))}
     </div>
-  )
+  );
 }

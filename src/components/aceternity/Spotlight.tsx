@@ -1,7 +1,7 @@
 type SpotlightProps = {
-  className?: string
-}
+  className?: string;
+};
 
 export function Spotlight({ className }: SpotlightProps) {
-  return <div aria-hidden className={`spotlight ${className ?? ''}`.trim()} />
+  return <div aria-hidden className={`spotlight ${className ?? ''}`.trim()} />;
 }

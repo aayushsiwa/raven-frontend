@@ -2,10 +2,8 @@ import { ArrowLeft } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import type { LocalSavedArticle } from '../../features/auth/useAuth';
-import {
-  type FeedStory,
-  useFeedExperience,
-} from '../../features/feed/useFeedExperience';
+import { useFeedExperience } from '../../features/feed/useFeedExperience';
+import type { FeedStory } from '../../features/feed/useFeedPreferences';
 import type { ThemeState } from '../../features/theme/useTheme';
 import { DiscoverPage } from './DiscoverPage';
 import { MobileFeedReaderPage } from './MobileFeedReaderPage';
@@ -115,7 +113,7 @@ export function MobileApp({
             isLoading={feed.feedLoading}
             errorTexts={feed.feedErrorTexts}
             onRefresh={() => {
-              void feed.refetchFeeds();
+              void feed.refetch();
             }}
             canRefresh={Boolean(feed.savedChoices.length)}
             isSaved={isSaved}

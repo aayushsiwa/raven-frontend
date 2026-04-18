@@ -1,11 +1,11 @@
-import type { PropsWithChildren, ReactNode } from 'react'
+import type { PropsWithChildren, ReactNode } from 'react';
 
 type CardSpotlightProps = PropsWithChildren<{
-  title: string
-  subtitle?: string
-  action?: ReactNode
-  className?: string
-}>
+  title: string;
+  subtitle?: string;
+  action?: ReactNode;
+  className?: string;
+}>;
 
 export function CardSpotlight({
   title,
@@ -25,5 +25,5 @@ export function CardSpotlight({
       </header>
       {children}
     </section>
-  )
+  );
 }

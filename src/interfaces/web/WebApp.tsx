@@ -1,20 +1,24 @@
-import { CardSpotlight } from '../../components/aceternity/CardSpotlight'
-import { BackgroundBeams } from '../../components/aceternity/BackgroundBeams'
-import { Spotlight } from '../../components/aceternity/Spotlight'
-import { InterestPicker } from '../../components/feed/InterestPicker'
-import { StoryCard } from '../../components/feed/StoryCard'
-import { useFeedExperience, type FeedStory } from '../../features/feed/useFeedExperience'
-import type { LocalSavedArticle } from '../../features/auth/useAuth'
-import type { ThemeState, ThemeVarKey } from '../../features/theme/useTheme'
+import { BackgroundBeams } from '../../components/aceternity/BackgroundBeams';
+import { CardSpotlight } from '../../components/aceternity/CardSpotlight';
+import { Spotlight } from '../../components/aceternity/Spotlight';
+import { InterestPicker } from '../../components/feed/InterestPicker';
+import { StoryCard } from '../../components/feed/StoryCard';
+import type { LocalSavedArticle } from '../../features/auth/useAuth';
+import { useFeedExperience } from '../../features/feed/useFeedExperience';
+import {
+  type FeedStory,
+  errorText,
+} from '../../features/feed/useFeedPreferences';
+import type { ThemeState, ThemeVarKey } from '../../features/theme/useTheme';
 
 type WebAppProps = {
-  defaultBaseUrl: string
-  onLogout: () => void
-  savedArticles: LocalSavedArticle[]
-  onSaveArticle: (article: Omit<LocalSavedArticle, 'id' | 'savedAt'>) => void
-  onRemoveSavedArticle: (id: string) => void
-  theme: ThemeState
-}
+  defaultBaseUrl: string;
+  onLogout: () => void;
+  savedArticles: LocalSavedArticle[];
+  onSaveArticle: (article: Omit<LocalSavedArticle, 'id' | 'savedAt'>) => void;
+  onRemoveSavedArticle: (id: string) => void;
+  theme: ThemeState;
+};
 
 export function WebApp({
   defaultBaseUrl,
@@ -24,7 +28,7 @@ export function WebApp({
   onRemoveSavedArticle,
   theme,
 }: WebAppProps) {
-  const feed = useFeedExperience(defaultBaseUrl)
+  const feed = useFeedExperience(defaultBaseUrl);
 
   const colorKeys: { key: ThemeVarKey; label: string }[] = [
     { key: 'bg', label: 'Background' },
@@ -32,28 +36,30 @@ export function WebApp({
     { key: 'muted', label: 'Muted' },
     { key: 'primary', label: 'Primary' },
     { key: 'tertiary', label: 'Accent' },
-  ]
+  ];
 
   const findSavedByUrl = (url: string | undefined) => {
-    if (!url) return null
-    return savedArticles.find((item) => item.url === url) ?? null
-  }
+    if (!url) return null;
+    return savedArticles.find((item) => item.url === url) ?? null;
+  };
 
   const handleSaveToggle = (story: FeedStory) => {
-    const link = story.entry.link ? String(story.entry.link) : ''
-    if (!link) return
-    const existing = findSavedByUrl(link)
+    const link = story.entry.link ? String(story.entry.link) : '';
+    if (!link) return;
+    const existing = findSavedByUrl(link);
     if (existing) {
-      onRemoveSavedArticle(existing.id)
-      return
+      onRemoveSavedArticle(existing.id);
+      return;
     }
     onSaveArticle({
       title: story.entry.title ?? 'Untitled entry',
       url: link,
       summary: story.entry.summary,
-      source: story.entry.source ?? `${story.provider}/${story.category}/${story.topic}`,
-    })
-  }
+      source:
+        story.entry.source ??
+        `${story.provider}/${story.category}/${story.topic}`,
+    });
+  };
 
   return (
     <main className="page-shell web-only">
@@ -65,17 +71,24 @@ export function WebApp({
         <p className="eyebrow">Feed Viewer</p>
         <h1>Raven Feed Viewer</h1>
         <p>Desktop web dashboard for multi-interest personalized feed.</p>
-        <button className="btn ghost" onClick={onLogout}>Logout</button>
+        <button className="btn ghost" onClick={onLogout}>
+          Logout
+        </button>
       </header>
 
       <section className="grid two-col">
-        <CardSpotlight title="My Interests" subtitle="Select multiple topics for personalized feed">
+        <CardSpotlight
+          title="My Interests"
+          subtitle="Select multiple topics for personalized feed"
+        >
           <InterestPicker
             feedTree={feed.feedTree}
             savedChoices={feed.savedChoices}
             mapRefreshing={feed.mapRefreshing}
-            providersErrorText={feed.providersErrorText}
-            feedTreeErrorText={feed.feedTreeErrorText}
+            providersErrorText={feed.error ? errorText(feed.error) : null}
+            feedTreeErrorText={
+              feed.error ? 'Failed loading provider tree' : null
+            }
             isAuthMode={feed.isAuthMode}
             preferencesSyncing={feed.preferencesSyncing}
             preferencesErrorText={feed.preferencesErrorText}
@@ -92,7 +105,7 @@ export function WebApp({
             <button
               className="btn ghost"
               onClick={() => {
-                void feed.refetchFeeds()
+                void feed.refetch();
               }}
               disabled={!feed.savedChoices.length}
             >
@@ -112,18 +125,27 @@ export function WebApp({
                 <StoryCard
                   story={story}
                   teaser={true}
-                  isSaved={Boolean(findSavedByUrl(story.entry.link ? String(story.entry.link) : undefined))}
+                  isSaved={Boolean(
+                    findSavedByUrl(
+                      story.entry.link ? String(story.entry.link) : undefined
+                    )
+                  )}
                   onSaveToggle={handleSaveToggle}
                   key={`${story.entry.link ?? 'story'}-${idx}`}
                 />
               ))
             ) : (
-              <p className="muted">No feed yet. Add interests to load stories.</p>
+              <p className="muted">
+                No feed yet. Add interests to load stories.
+              </p>
             )}
           </div>
         </CardSpotlight>
 
-        <CardSpotlight title="Saved Articles" subtitle="Stories you bookmarked for later">
+        <CardSpotlight
+          title="Saved Articles"
+          subtitle="Stories you bookmarked for later"
+        >
           <div className="saved-list">
             {savedArticles.length ? (
               savedArticles
@@ -133,23 +155,41 @@ export function WebApp({
                   <article className="saved-item" key={article.id}>
                     <div>
                       <h3>{article.title}</h3>
-                      {article.source ? <p className="saved-meta">{article.source}</p> : null}
+                      {article.source ? (
+                        <p className="saved-meta">{article.source}</p>
+                      ) : null}
                     </div>
                     <div className="saved-actions">
-                      <a className="story-link" href={article.url} target="_blank" rel="noreferrer">Open</a>
-                      <button className="btn ghost" onClick={() => onRemoveSavedArticle(article.id)} type="button">
+                      <a
+                        className="story-link"
+                        href={article.url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open
+                      </a>
+                      <button
+                        className="btn ghost"
+                        onClick={() => onRemoveSavedArticle(article.id)}
+                        type="button"
+                      >
                         Remove
                       </button>
                     </div>
                   </article>
                 ))
             ) : (
-              <p className="muted">No saved articles yet. Tap Save on any story.</p>
+              <p className="muted">
+                No saved articles yet. Tap Save on any story.
+              </p>
             )}
           </div>
         </CardSpotlight>
 
-        <CardSpotlight title="Theme Settings" subtitle="Pick preset, then tweak core colors">
+        <CardSpotlight
+          title="Theme Settings"
+          subtitle="Pick preset, then tweak core colors"
+        >
           <section className="settings-accordion web-settings-accordion">
             <details className="settings-section" open>
               <summary>Theme Presets</summary>
@@ -175,11 +215,17 @@ export function WebApp({
                     <input
                       type="color"
                       value={theme.resolvedVars[item.key]}
-                      onChange={(event) => theme.setVar(item.key, event.currentTarget.value)}
+                      onChange={(event) =>
+                        theme.setVar(item.key, event.currentTarget.value)
+                      }
                     />
                   </label>
                 ))}
-                <button className="btn ghost" onClick={theme.resetOverrides} type="button">
+                <button
+                  className="btn ghost"
+                  onClick={theme.resetOverrides}
+                  type="button"
+                >
                   Reset custom colors
                 </button>
               </div>
@@ -188,5 +234,5 @@ export function WebApp({
         </CardSpotlight>
       </section>
     </main>
-  )
+  );
 }

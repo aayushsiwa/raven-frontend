@@ -1,5 +1,5 @@
 import { InterestPicker } from '../../components/feed/InterestPicker';
-import type { FeedExperienceState } from '../../features/feed/useFeedExperience';
+import type { FeedExperienceState } from '../../features/feed/useFeedPreferences';
 import type { ThemeState, ThemeVarKey } from '../../features/theme/useTheme';
 
 type SettingsPageProps = {

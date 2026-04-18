@@ -1,21 +1,29 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react';
 
-const THEME_STORE_KEY = 'raven.theme.v1'
+const THEME_STORE_KEY = 'raven.theme.v1';
 
-export type ThemePresetId = 'dawn' | 'forest' | 'ink'
+export type ThemePresetId = 'dawn' | 'forest' | 'ink';
 
-export type ThemeVarKey = 'bg' | 'text' | 'muted' | 'primary' | 'tertiary' | 'surface-low' | 'surface-high' | 'panel'
+export type ThemeVarKey =
+  | 'bg'
+  | 'text'
+  | 'muted'
+  | 'primary'
+  | 'tertiary'
+  | 'surface-low'
+  | 'surface-high'
+  | 'panel';
 
 export type ThemePreset = {
-  id: ThemePresetId
-  label: string
-  vars: Record<ThemeVarKey, string>
-}
+  id: ThemePresetId;
+  label: string;
+  vars: Record<ThemeVarKey, string>;
+};
 
 type ThemeStore = {
-  presetId: ThemePresetId
-  overrides: Partial<Record<ThemeVarKey, string>>
-}
+  presetId: ThemePresetId;
+  overrides: Partial<Record<ThemeVarKey, string>>;
+};
 
 const THEME_PRESETS: ThemePreset[] = [
   {
@@ -60,67 +68,73 @@ const THEME_PRESETS: ThemePreset[] = [
       panel: 'rgba(255, 255, 255, 0.88)',
     },
   },
-]
+];
 
 function readThemeStore(): ThemeStore {
   try {
-    const raw = localStorage.getItem(THEME_STORE_KEY)
-    if (!raw) return { presetId: 'dawn', overrides: {} }
-    const parsed = JSON.parse(raw) as ThemeStore
-    const validPreset = THEME_PRESETS.some((item) => item.id === parsed?.presetId)
+    const raw = localStorage.getItem(THEME_STORE_KEY);
+    if (!raw) return { presetId: 'dawn', overrides: {} };
+    const parsed = JSON.parse(raw) as ThemeStore;
+    const validPreset = THEME_PRESETS.some(
+      (item) => item.id === parsed?.presetId
+    );
     return {
       presetId: validPreset ? parsed.presetId : 'dawn',
       overrides: parsed?.overrides ?? {},
-    }
+    };
   } catch {
-    return { presetId: 'dawn', overrides: {} }
+    return { presetId: 'dawn', overrides: {} };
   }
 }
 
 function writeThemeStore(value: ThemeStore) {
-  localStorage.setItem(THEME_STORE_KEY, JSON.stringify(value))
+  localStorage.setItem(THEME_STORE_KEY, JSON.stringify(value));
 }
 
 export type ThemeState = {
-  presets: ThemePreset[]
-  presetId: ThemePresetId
-  resolvedVars: Record<ThemeVarKey, string>
-  overrides: Partial<Record<ThemeVarKey, string>>
-  setPreset: (presetId: ThemePresetId) => void
-  setVar: (key: ThemeVarKey, value: string) => void
-  resetOverrides: () => void
-}
+  presets: ThemePreset[];
+  presetId: ThemePresetId;
+  resolvedVars: Record<ThemeVarKey, string>;
+  overrides: Partial<Record<ThemeVarKey, string>>;
+  setPreset: (presetId: ThemePresetId) => void;
+  setVar: (key: ThemeVarKey, value: string) => void;
+  resetOverrides: () => void;
+};
 
 export function useTheme(): ThemeState {
-  const [themeStore, setThemeStore] = useState<ThemeStore>(readThemeStore)
+  const [themeStore, setThemeStore] = useState<ThemeStore>(readThemeStore);
 
   const preset = useMemo(
-    () => THEME_PRESETS.find((item) => item.id === themeStore.presetId) ?? THEME_PRESETS[0],
-    [themeStore.presetId],
-  )
+    () =>
+      THEME_PRESETS.find((item) => item.id === themeStore.presetId) ??
+      THEME_PRESETS[0],
+    [themeStore.presetId]
+  );
 
   const resolvedVars = useMemo(
     () => ({
       ...preset.vars,
       ...themeStore.overrides,
     }),
-    [preset.vars, themeStore.overrides],
-  )
+    [preset.vars, themeStore.overrides]
+  );
 
   useEffect(() => {
-    const root = document.documentElement
-    ;(Object.entries(resolvedVars) as [ThemeVarKey, string][]).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value)
-    })
-  }, [resolvedVars])
+    const root = document.documentElement;
+    (Object.entries(resolvedVars) as [ThemeVarKey, string][]).forEach(
+      ([key, value]) => {
+        root.style.setProperty(`--${key}`, value);
+      }
+    );
+  }, [resolvedVars]);
 
   useEffect(() => {
-    writeThemeStore(themeStore)
-  }, [themeStore])
+    writeThemeStore(themeStore);
+  }, [themeStore]);
 
   const setPreset = (presetId: ThemePresetId) => {
-    setThemeStore((prev) => ({ ...prev, presetId }))
-  }
+    setThemeStore((prev) => ({ ...prev, presetId }));
+  };
 
   const setVar = (key: ThemeVarKey, value: string) => {
     setThemeStore((prev) => ({
@@ -129,12 +143,12 @@ export function useTheme(): ThemeState {
         ...prev.overrides,
         [key]: value,
       },
-    }))
-  }
+    }));
+  };
 
   const resetOverrides = () => {
-    setThemeStore((prev) => ({ ...prev, overrides: {} }))
-  }
+    setThemeStore((prev) => ({ ...prev, overrides: {} }));
+  };
 
   return {
     presets: THEME_PRESETS,
@@ -144,5 +158,5 @@ export function useTheme(): ThemeState {
     setPreset,
     setVar,
     resetOverrides,
-  }
+  };
 }

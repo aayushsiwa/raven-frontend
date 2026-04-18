@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa'
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   plugins: [
@@ -11,7 +11,8 @@ export default defineConfig({
       manifest: {
         name: 'Raven Feed Console',
         short_name: 'Raven',
-        description: 'Installable Raven RSS dashboard for subscriptions and feeds.',
+        description:
+          'Installable Raven RSS dashboard for subscriptions and feeds.',
         theme_color: '#0f1720',
         background_color: '#eef1f5',
         display: 'standalone',
@@ -89,4 +90,4 @@ export default defineConfig({
       },
     }),
   ],
-})
+});

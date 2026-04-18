@@ -1,29 +1,34 @@
-import { useState } from 'react'
-import type { FeedChoice } from '../../features/feed/useFeedExperience'
+import { useState } from 'react';
+
+import type { FeedChoice } from '../../features/feed/useFeedPreferences';
 
 type InterestPickerProps = {
-  feedTree: Record<string, Record<string, string[]>>
-  savedChoices: FeedChoice[]
-  mapRefreshing: boolean
-  providersErrorText: string | null
-  feedTreeErrorText: string | null
-  isAuthMode?: boolean
-  preferencesSyncing?: boolean
-  preferencesErrorText?: string | null
-  onAddChoice: (choice: FeedChoice) => void
-  onRemoveChoice: (choice: FeedChoice) => void
-  onClearChoices: () => void
-}
+  feedTree: Record<string, Record<string, string[]>>;
+  savedChoices: FeedChoice[];
+  mapRefreshing: boolean;
+  providersErrorText: string | null;
+  feedTreeErrorText: string | null;
+  isAuthMode?: boolean;
+  preferencesSyncing?: boolean;
+  preferencesErrorText?: string | null;
+  onAddChoice: (choice: FeedChoice) => void;
+  onRemoveChoice: (choice: FeedChoice) => void;
+  onClearChoices: () => void;
+};
 
 export function InterestPicker(props: InterestPickerProps) {
-  const [openPath, setOpenPath] = useState<string | null>(null)
+  const [openPath, setOpenPath] = useState<string | null>(null);
 
-  const providers = Object.keys(props.feedTree)
+  const providers = Object.keys(props.feedTree);
 
   return (
     <section className="interest-panel">
       <div className="picker-actions">
-        <button className="btn ghost" onClick={props.onClearChoices} disabled={!props.savedChoices.length}>
+        <button
+          className="btn ghost"
+          onClick={props.onClearChoices}
+          disabled={!props.savedChoices.length}
+        >
           Clear all
         </button>
       </div>
@@ -31,12 +36,16 @@ export function InterestPicker(props: InterestPickerProps) {
       <div className="chip-scroll">
         {props.savedChoices.length ? (
           props.savedChoices.map((choice) => {
-            const key = `${choice.provider}/${choice.category}/${choice.topic}`
+            const key = `${choice.provider}/${choice.category}/${choice.topic}`;
             return (
-              <button key={key} className="choice-chip" onClick={() => props.onRemoveChoice(choice)}>
+              <button
+                key={key}
+                className="choice-chip"
+                onClick={() => props.onRemoveChoice(choice)}
+              >
                 {key} x
               </button>
-            )
+            );
           })
         ) : (
           <p className="choice-empty">No interests yet. Tap topic to add.</p>
@@ -45,23 +54,25 @@ export function InterestPicker(props: InterestPickerProps) {
 
       <div className="accordion-list">
         {providers.map((provider) => {
-          const categories = Object.keys(props.feedTree[provider] ?? {})
+          const categories = Object.keys(props.feedTree[provider] ?? {});
 
           return (
             <details
               key={provider}
               className="acc-provider"
-              open={openPath === provider || openPath?.startsWith(`${provider}/`)}
+              open={
+                openPath === provider || openPath?.startsWith(`${provider}/`)
+              }
               onToggle={(event) => {
-                const isOpen = (event.currentTarget as HTMLDetailsElement).open
-                setOpenPath(isOpen ? provider : null)
+                const isOpen = (event.currentTarget as HTMLDetailsElement).open;
+                setOpenPath(isOpen ? provider : null);
               }}
             >
               <summary>{provider}</summary>
               <div className="acc-content">
                 {categories.map((category) => {
-                  const categoryKey = `${provider}/${category}`
-                  const topics = props.feedTree[provider][category] ?? []
+                  const categoryKey = `${provider}/${category}`;
+                  const topics = props.feedTree[provider][category] ?? [];
 
                   return (
                     <details
@@ -69,20 +80,26 @@ export function InterestPicker(props: InterestPickerProps) {
                       className="acc-category"
                       open={openPath === categoryKey}
                       onToggle={(event) => {
-                        const isOpen = (event.currentTarget as HTMLDetailsElement).open
-                        setOpenPath(isOpen ? categoryKey : provider)
+                        const isOpen = (
+                          event.currentTarget as HTMLDetailsElement
+                        ).open;
+                        setOpenPath(isOpen ? categoryKey : provider);
                       }}
                     >
                       <summary>{category}</summary>
                       <div className="topic-list">
                         {topics.map((topic) => {
-                          const choice: FeedChoice = { provider, category, topic }
+                          const choice: FeedChoice = {
+                            provider,
+                            category,
+                            topic,
+                          };
                           const exists = props.savedChoices.some(
                             (item) =>
                               item.provider === provider &&
                               item.category === category &&
-                              item.topic === topic,
-                          )
+                              item.topic === topic
+                          );
 
                           return (
                             <button
@@ -90,23 +107,23 @@ export function InterestPicker(props: InterestPickerProps) {
                               className={`topic-pill ${exists ? 'selected' : ''}`.trim()}
                               onClick={() => {
                                 if (exists) {
-                                  props.onRemoveChoice(choice)
-                                  return
+                                  props.onRemoveChoice(choice);
+                                  return;
                                 }
-                                props.onAddChoice(choice)
+                                props.onAddChoice(choice);
                               }}
                             >
                               {topic}
                             </button>
-                          )
+                          );
                         })}
                       </div>
                     </details>
-                  )
+                  );
                 })}
               </div>
             </details>
-          )
+          );
         })}
       </div>
 
@@ -118,9 +135,15 @@ export function InterestPicker(props: InterestPickerProps) {
             : `${props.savedChoices.length} interests saved (${props.isAuthMode ? 'db' : 'local'})`}
       </p>
 
-      {props.providersErrorText ? <p className="error">{props.providersErrorText}</p> : null}
-      {props.feedTreeErrorText ? <p className="error">{props.feedTreeErrorText}</p> : null}
-      {props.preferencesErrorText ? <p className="error">{props.preferencesErrorText}</p> : null}
+      {props.providersErrorText ? (
+        <p className="error">{props.providersErrorText}</p>
+      ) : null}
+      {props.feedTreeErrorText ? (
+        <p className="error">{props.feedTreeErrorText}</p>
+      ) : null}
+      {props.preferencesErrorText ? (
+        <p className="error">{props.preferencesErrorText}</p>
+      ) : null}
     </section>
-  )
+  );
 }

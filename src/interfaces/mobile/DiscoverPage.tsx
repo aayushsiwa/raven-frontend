@@ -1,4 +1,4 @@
-import type { FeedExperienceState } from '../../features/feed/useFeedExperience';
+import type { FeedExperienceState } from '../../features/feed/useFeedPreferences';
 
 type DiscoverPageProps = {
   feed: FeedExperienceState;

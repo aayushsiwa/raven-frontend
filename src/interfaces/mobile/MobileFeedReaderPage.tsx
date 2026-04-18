@@ -1,16 +1,16 @@
-import { StoryCard } from '../../components/feed/StoryCard'
-import { FeedSkeleton } from '../../components/ui/Skeleton'
-import type { FeedStory } from '../../features/feed/useFeedExperience'
+import { StoryCard } from '../../components/feed/StoryCard';
+import { FeedSkeleton } from '../../components/ui/Skeleton';
+import type { FeedStory } from '../../features/feed/useFeedPreferences';
 
 type MobileFeedReaderPageProps = {
-  stories: FeedStory[]
-  isLoading: boolean
-  errorTexts: string[]
-  onRefresh: () => void
-  canRefresh: boolean
-  isSaved: (story: FeedStory) => boolean
-  onSaveToggle: (story: FeedStory) => void
-}
+  stories: FeedStory[];
+  isLoading: boolean;
+  errorTexts: string[];
+  onRefresh: () => void;
+  canRefresh: boolean;
+  isSaved: (story: FeedStory) => boolean;
+  onSaveToggle: (story: FeedStory) => void;
+};
 
 export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
   return (
@@ -53,5 +53,5 @@ export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
         ) : null}
       </div>
     </section>
-  )
+  );
 }

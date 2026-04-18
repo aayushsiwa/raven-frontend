@@ -5,5 +5,5 @@ export function BackgroundBeams() {
       <span className="beam beam-2" />
       <span className="beam beam-3" />
     </div>
-  )
+  );
 }
