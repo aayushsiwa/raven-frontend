@@ -7,11 +7,11 @@ import type { FeedChoice } from '../../../features/feed/useFeedPreferences';
 import { useTheme } from '../../../features/theme/useTheme';
 import type { ThemePresetId } from '../../../features/theme/useTheme';
 import { useIsMobile } from '../../../hooks/useIsMobile';
+import { DEFAULT_BASE_URL } from '../../../lib/api';
 import { MobileApp } from '../../mobile/MobileApp';
 import { WebApp } from '../../web/WebApp';
 import { AuthGate } from '../AuthGate';
 
-const DEFAULT_BASE_URL = 'http://localhost:8080';
 const GUEST_MODE_KEY = 'raven.guest.mode.v1';
 const FEED_PREFS_KEY = 'raven.feed.preferences.v1';
 

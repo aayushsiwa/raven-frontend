@@ -9,9 +9,8 @@ import {
   formatProvider,
 } from '../../../features/feed/constants';
 import { useSavedArticles } from '../../../features/savedArticles/useSavedArticles';
+import { DEFAULT_BASE_URL } from '../../../lib/api';
 import { formatDate, sanitizeHTML } from '../../../lib/utils';
-
-const DEFAULT_BASE_URL = 'http://localhost:8080';
 
 type StoryDetailRouteContentProps = {
   title: string;

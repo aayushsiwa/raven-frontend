@@ -10,6 +10,9 @@ export type HealthResponse = {
   redis: string;
 };
 
+export const DEFAULT_BASE_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:8080';
+
 export type AuthUser = {
   id: number;
   username: string;

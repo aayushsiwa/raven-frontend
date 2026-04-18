@@ -2,9 +2,8 @@ import { useFeedExperience } from '../../../features/feed/useFeedExperience';
 import { useTheme } from '../../../features/theme/useTheme';
 import type { ThemeVarKey } from '../../../features/theme/useTheme';
 import { useIsMobile } from '../../../hooks/useIsMobile';
+import { DEFAULT_BASE_URL } from '../../../lib/api';
 import { SettingsPage as MobileSettingsPage } from '../../mobile/SettingsPage';
-
-const DEFAULT_BASE_URL = 'http://localhost:8080';
 
 export function SettingsRouteContent() {
   const isMobile = useIsMobile();

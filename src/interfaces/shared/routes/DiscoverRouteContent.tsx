@@ -1,9 +1,8 @@
 import { InterestPicker } from '../../../components/feed/InterestPicker';
 import { useFeedExperience } from '../../../features/feed/useFeedExperience';
 import { useIsMobile } from '../../../hooks/useIsMobile';
+import { DEFAULT_BASE_URL } from '../../../lib/api';
 import { DiscoverPage as MobileDiscoverPage } from '../../mobile/DiscoverPage';
-
-const DEFAULT_BASE_URL = 'http://localhost:8080';
 
 export function DiscoverRouteContent() {
   const isMobile = useIsMobile();

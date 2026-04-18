@@ -2,9 +2,8 @@ import { LogOut } from 'lucide-react';
 
 import { useAuth } from '../../../features/auth/useAuth';
 import { useIsMobile } from '../../../hooks/useIsMobile';
+import { DEFAULT_BASE_URL } from '../../../lib/api';
 import { SavedArticlesPage as MobileSavedPage } from '../../mobile/SavedArticlesPage';
-
-const DEFAULT_BASE_URL = 'http://localhost:8080';
 
 export function SavedRouteContent() {
   const isMobile = useIsMobile();

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 
+import { DEFAULT_BASE_URL } from '../lib/api';
 import { normalizeBaseUrl, toInt } from '../lib/utils';
 
-export function useBaseUrl(defaultBaseUrl: string) {
+export function useBaseUrl(defaultBaseUrl: string = DEFAULT_BASE_URL) {
   const envUrl = import.meta.env.VITE_API_URL || defaultBaseUrl;
 
   const [baseUrlInput, setBaseUrlInput] = useState(envUrl);

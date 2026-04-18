@@ -4,9 +4,8 @@ import { useAuth } from '../../../features/auth/useAuth';
 import { useFeedExperience } from '../../../features/feed/useFeedExperience';
 import { useSavedArticles } from '../../../features/savedArticles/useSavedArticles';
 import { useIsMobile } from '../../../hooks/useIsMobile';
+import { DEFAULT_BASE_URL } from '../../../lib/api';
 import { MobileFeedReaderPage } from '../../mobile/MobileFeedReaderPage';
-
-const DEFAULT_BASE_URL = 'http://localhost:8080';
 
 export function FeedRouteContent() {
   const isMobile = useIsMobile();
