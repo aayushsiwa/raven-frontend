@@ -512,6 +512,45 @@ button:focus {
   color: var(--muted);
 }
 
+.onboarding-wrap {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.onboarding-card {
+  width: min(520px, 100%);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(15, 23, 32, 0.12);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 12px 30px rgba(15, 23, 32, 0.1);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.onboarding-card h1 {
+  margin: 0;
+}
+
+.onboarding-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.onboarding-form {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.oauth-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
 .mobile-bottom-nav {
   position: fixed;
   left: 50%;
@@ -581,5 +620,9 @@ button:focus {
   .meta-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .oauth-grid {
+    grid-template-columns: 1fr;
   }
 }

@@ -10,6 +10,40 @@ export type HealthResponse = {
   redis: string
 }
 
+export type AuthUser = {
+  id: number
+  username: string
+  email?: string | null
+  display_name?: string | null
+  avatar_url?: string | null
+  auth_source: string
+  created_at: string
+}
+
+export type AuthResponse = {
+  token: string
+  user: AuthUser
+}
+
+export type SignupBody = {
+  username: string
+  password: string
+}
+
+export type LoginBody = {
+  username: string
+  password: string
+}
+
+export type OAuthLoginBody = {
+  provider: 'google' | 'github' | 'discord'
+  provider_user_id: string
+  username: string
+  email?: string
+  display_name?: string
+  avatar_url?: string
+}
+
 export type ProvidersResponse = {
   providers: string[]
 }
@@ -140,6 +174,30 @@ function queryString(params: Record<string, string | number | undefined>): strin
 
 export function api(baseUrl: string) {
   return {
+    signup: (payload: SignupBody) =>
+      request<AuthResponse>(baseUrl, '/api/v1/auth/signup', {
+        method: 'POST',
+        headers: jsonHeaders,
+        body: JSON.stringify(payload),
+      }),
+    login: (payload: LoginBody) =>
+      request<AuthResponse>(baseUrl, '/api/v1/auth/login', {
+        method: 'POST',
+        headers: jsonHeaders,
+        body: JSON.stringify(payload),
+      }),
+    oauthLogin: (payload: OAuthLoginBody) =>
+      request<AuthResponse>(baseUrl, '/api/v1/auth/oauth', {
+        method: 'POST',
+        headers: jsonHeaders,
+        body: JSON.stringify(payload),
+      }),
+    me: (token: string) =>
+      request<{ user: AuthUser }>(baseUrl, '/api/v1/auth/me', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
     health: () => request<HealthResponse>(baseUrl, '/health'),
     providers: () => request<ProvidersResponse>(baseUrl, '/api/v1/providers'),
     categories: (provider: string) =>

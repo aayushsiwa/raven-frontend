@@ -1,0 +1,120 @@
+import { useState, type FormEvent } from 'react'
+
+type AuthMode = 'login' | 'signup'
+type OAuthProvider = 'google' | 'github' | 'discord'
+
+type OnboardingPageProps = {
+  loading: boolean
+  errorText: string | null
+  onLogin: (username: string, password: string) => Promise<boolean>
+  onSignup: (username: string, password: string) => Promise<boolean>
+  onOAuth: (provider: OAuthProvider, username: string) => Promise<boolean>
+}
+
+export function OnboardingPage(props: OnboardingPageProps) {
+  const [mode, setMode] = useState<AuthMode>('signup')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!username || (mode !== 'login' && password.length < 8)) {
+      return
+    }
+
+    if (mode === 'login') {
+      await props.onLogin(username, password)
+      return
+    }
+    await props.onSignup(username, password)
+  }
+
+  return (
+    <section className="onboarding-wrap">
+      <div className="onboarding-card">
+        <p className="mobile-eyebrow">Raven</p>
+        <h1>Welcome</h1>
+        <p className="muted">Create account or continue with provider.</p>
+
+        <div className="onboarding-switch">
+          <button
+            className={mode === 'signup' ? 'btn' : 'btn ghost'}
+            onClick={() => setMode('signup')}
+            type="button"
+          >
+            Sign up
+          </button>
+          <button
+            className={mode === 'login' ? 'btn' : 'btn ghost'}
+            onClick={() => setMode('login')}
+            type="button"
+          >
+            Log in
+          </button>
+        </div>
+
+        <form className="onboarding-form" onSubmit={submit}>
+          <label>
+            Username
+            <input
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              placeholder="neo_reader"
+              autoComplete="username"
+            />
+          </label>
+
+          <label>
+            Password
+            <input
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              type="password"
+              placeholder="Minimum 8 chars"
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            />
+          </label>
+
+          <button className="btn" type="submit" disabled={props.loading}>
+            {mode === 'login' ? 'Log in' : 'Create account'}
+          </button>
+        </form>
+
+        <div className="oauth-grid">
+          <button
+            type="button"
+            className="btn ghost"
+            disabled={props.loading || !username}
+            onClick={() => {
+              void props.onOAuth('google', username)
+            }}
+          >
+            Continue Google
+          </button>
+          <button
+            type="button"
+            className="btn ghost"
+            disabled={props.loading || !username}
+            onClick={() => {
+              void props.onOAuth('github', username)
+            }}
+          >
+            Continue GitHub
+          </button>
+          <button
+            type="button"
+            className="btn ghost"
+            disabled={props.loading || !username}
+            onClick={() => {
+              void props.onOAuth('discord', username)
+            }}
+          >
+            Continue Discord
+          </button>
+        </div>
+
+        {props.errorText ? <p className="error">{props.errorText}</p> : null}
+      </div>
+    </section>
+  )
+}

@@ -7,9 +7,11 @@ type MobileTab = 'feed' | 'setup'
 
 type MobileAppProps = {
   defaultBaseUrl: string
+  username: string
+  onLogout: () => void
 }
 
-export function MobileApp({ defaultBaseUrl }: MobileAppProps) {
+export function MobileApp({ defaultBaseUrl, username, onLogout }: MobileAppProps) {
   const feed = useFeedExperience(defaultBaseUrl)
   const [tab, setTab] = useState<MobileTab>('feed')
   const [feedViewMode, setFeedViewMode] = useState<'teaser' | 'full'>('teaser')
@@ -57,9 +59,15 @@ export function MobileApp({ defaultBaseUrl }: MobileAppProps) {
       <header className="mobile-topbar">
         <p className="mobile-eyebrow">Raven</p>
         <h1>{tabLabel}</h1>
+        <p className="muted">@{username}</p>
         {tab === 'feed' && feedViewMode === 'full' && (
           <button className="btn ghost" onClick={handleBack}>
             Back
+          </button>
+        )}
+        {tab === 'setup' && (
+          <button className="btn ghost" onClick={onLogout}>
+            Logout
           </button>
         )}
       </header>

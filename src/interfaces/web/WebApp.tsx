@@ -8,9 +8,11 @@ import { useFeedExperience, type FeedStory } from '../../features/feed/useFeedEx
 
 type WebAppProps = {
   defaultBaseUrl: string
+  username: string
+  onLogout: () => void
 }
 
-export function WebApp({ defaultBaseUrl }: WebAppProps) {
+export function WebApp({ defaultBaseUrl, username, onLogout }: WebAppProps) {
   const feed = useFeedExperience(defaultBaseUrl)
   const [feedViewMode, setFeedViewMode] = useState<'teaser' | 'full'>('teaser')
   const [selectedStory, setSelectedStory] = useState<FeedStory | null>(null)
@@ -34,7 +36,8 @@ export function WebApp({ defaultBaseUrl }: WebAppProps) {
       <header className="hero">
         <p className="eyebrow">Feed Viewer</p>
         <h1>Raven Feed Viewer</h1>
-        <p>Desktop web dashboard for multi-interest personalized feed.</p>
+        <p>Desktop web dashboard for multi-interest personalized feed. Signed in: @{username}</p>
+        <button className="btn ghost" onClick={onLogout}>Logout</button>
         {feedViewMode === 'full' && (
           <button className="btn ghost" onClick={handleBack}>
             Back to teaser
