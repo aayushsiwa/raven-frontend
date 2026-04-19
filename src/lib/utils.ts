@@ -135,3 +135,13 @@ export function sanitizeHTML(input: string): string {
   cleanNode(tempDiv);
   return tempDiv.innerHTML;
 }
+
+export function formatLabel(str: string): string {
+  if (!str) return '';
+  // Handle snake_case and kebab-case
+  const result = str.replace(/[_-]/g, ' ');
+  // Handle camelCase
+  const final = result.replace(/([a-z])([A-Z])/g, '$1 $2');
+  // Capitalize words
+  return final.charAt(0).toUpperCase() + final.slice(1);
+}

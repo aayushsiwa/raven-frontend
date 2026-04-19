@@ -1,3 +1,5 @@
+import { formatLabel } from '../../lib/utils';
+
 export const Provider = {
   VERGE: 'verge',
   HN: 'hn',
@@ -41,8 +43,9 @@ export const CATEGORY_DISPLAY_NAMES: Record<string, string> = {
 
 export function formatCategory(slug: string): string {
   const normalized = slug.toLowerCase();
-  return (
-    CATEGORY_DISPLAY_NAMES[normalized] ||
-    normalized.charAt(0).toUpperCase() + normalized.slice(1)
-  );
+  return CATEGORY_DISPLAY_NAMES[normalized] || formatLabel(slug);
+}
+
+export function formatTopic(slug: string): string {
+  return formatLabel(slug);
 }

@@ -1,6 +1,10 @@
 import { useState } from 'react';
 
-import { formatCategory, formatProvider } from '../../features/feed/constants';
+import {
+  formatCategory,
+  formatProvider,
+  formatTopic,
+} from '../../features/feed/constants';
 import type { FeedChoice } from '../../features/feed/useFeedPreferences';
 
 type InterestPickerProps = {
@@ -50,7 +54,7 @@ export function InterestPicker(props: InterestPickerProps) {
                 className="px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[0.85rem] font-bold flex items-center gap-1.5 transition-all hover:bg-primary/20 animate-in zoom-in-95 duration-200"
                 onClick={() => props.onRemoveChoice(choice)}
               >
-                {choice.topic}{' '}
+                {formatTopic(choice.topic)}{' '}
                 <span className="opacity-40 text-[1.1rem] leading-none">×</span>
               </button>
             );
@@ -131,7 +135,7 @@ export function InterestPicker(props: InterestPickerProps) {
                                 props.onAddChoice(choice);
                               }}
                             >
-                              {topic}
+                              {formatTopic(topic)}
                             </button>
                           );
                         })}

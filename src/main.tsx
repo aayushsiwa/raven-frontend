@@ -9,6 +9,7 @@ import { AuthProvider } from './features/auth/useAuth';
 import './index.css';
 import { DEFAULT_BASE_URL } from './lib/api';
 import { routeTree } from './routeTree.gen';
+import { GlobalErrorBoundary } from './components/shared/GlobalErrorBoundary';
 
 // Create a new router instance
 const router = createRouter({ routeTree });
@@ -37,12 +38,14 @@ if (!rootElement.innerHTML) {
   const root = createRoot(rootElement);
   root.render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider baseUrl={DEFAULT_BASE_URL}>
-          <RouterProvider router={router} />
-        </AuthProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+      <GlobalErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider baseUrl={DEFAULT_BASE_URL}>
+            <RouterProvider router={router} />
+          </AuthProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </GlobalErrorBoundary>
     </StrictMode>
   );
 }
