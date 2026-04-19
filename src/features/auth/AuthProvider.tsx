@@ -19,6 +19,8 @@ const REFRESH_TOKEN_COOKIE = 'raven_refresh_token';
 const ONBOARDING_DONE_KEY = 'raven.onboarding.done.v1';
 
 type AuthStore = {
+  token: string;
+  refreshToken: string;
   user: AuthUser;
 };
 
@@ -58,13 +60,15 @@ function readAuthStore(): AuthStore | null {
   try {
     const raw = localStorage.getItem(AUTH_STORE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as AuthStore;
+    const userStore = JSON.parse(raw) as { user: AuthUser };
     const token = getCookie(AUTH_TOKEN_COOKIE);
     const refreshToken = getCookie(REFRESH_TOKEN_COOKIE);
-    if (!token || !refreshToken || !parsed?.user) return null;
-    parsed.token = token;
-    parsed.refreshToken = refreshToken;
-    return parsed;
+    if (!token || !refreshToken || !userStore?.user) return null;
+    return {
+      token,
+      refreshToken,
+      user: userStore.user,
+    };
   } catch {
     return null;
   }
@@ -160,12 +164,35 @@ export function AuthProvider({
   const [savedArticles, setSavedArticles] = useState<LocalSavedArticle[]>(
     readLocalSavedArticles
   );
-  const [onboardingDone, setOnboardingDone] = useState<boolean>(
-    readOnboardingDone
-  );
+  const [onboardingDone, setOnboardingDone] =
+    useState<boolean>(readOnboardingDone);
 
   const theme = useTheme();
   const client = useMemo(() => api(baseUrl), [baseUrl]);
+
+  const withRefreshRetry = React.useCallback(
+    async <T,>(work: (accessToken: string) => Promise<T>) => {
+      if (!session?.token || !session?.refreshToken) {
+        throw new Error('Not authenticated');
+      }
+      try {
+        return await work(session.token);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          const refreshed = await client.refresh(session.refreshToken);
+          const newSession = {
+            token: refreshed.token,
+            refreshToken: refreshed.refresh_token,
+            user: refreshed.user,
+          };
+          setSession(newSession);
+          return await work(refreshed.token);
+        }
+        throw err;
+      }
+    },
+    [client, session, setSession]
+  );
 
   // Persist session
   useEffect(() => {
@@ -194,31 +221,8 @@ export function AuthProvider({
     localStorage.setItem(ONBOARDING_DONE_KEY, onboardingDone ? '1' : '0');
   }, [onboardingDone]);
 
-  // Sync saved articles with DB if logged in
   useEffect(() => {
     let mounted = true;
-    const token = session?.token;
-    const refreshToken = session?.refreshToken;
-    if (!token || !refreshToken) {
-      return;
-    }
-
-    const withRefreshRetry = async <T,>(work: (accessToken: string) => Promise<T>) => {
-      try {
-        return await work(token);
-      } catch (err) {
-        if (err instanceof ApiError && err.status === 401) {
-          const refreshed = await client.refresh(refreshToken);
-          setSession({
-            token: refreshed.token,
-            refreshToken: refreshed.refresh_token,
-            user: refreshed.user,
-          });
-          return await work(refreshed.token);
-        }
-        throw err;
-      }
-    };
 
     const pullSaved = async () => {
       try {
@@ -237,12 +241,13 @@ export function AuthProvider({
       }
     };
 
-    void pullSaved();
+    if (session?.token && session?.refreshToken) {
+      void pullSaved();
+    }
     return () => {
       mounted = false;
     };
-  }, [client, session?.token]);
-
+  }, [client, session, withRefreshRetry]);
   // Handle OAuth callback hydration from URL
   useEffect(() => {
     const search = new URLSearchParams(window.location.search);
@@ -255,7 +260,8 @@ export function AuthProvider({
       setErrorText(null);
       try {
         const me = await client.me(token);
-        const refreshToken = refreshTokenFromUrl ?? getCookie(REFRESH_TOKEN_COOKIE);
+        const refreshToken =
+          refreshTokenFromUrl ?? getCookie(REFRESH_TOKEN_COOKIE);
         if (!refreshToken) {
           setErrorText('Missing refresh token');
           return;
@@ -380,25 +386,6 @@ export function AuthProvider({
 
       void (async () => {
         try {
-          const withRefreshRetry = async <T,>(
-            work: (accessToken: string) => Promise<T>
-          ) => {
-            try {
-              return await work(token);
-            } catch (err) {
-              if (err instanceof ApiError && err.status === 401) {
-                const refreshed = await client.refresh(refreshToken);
-                setSession({
-                  token: refreshed.token,
-                  refreshToken: refreshed.refresh_token,
-                  user: refreshed.user,
-                });
-                return await work(refreshed.token);
-              }
-              throw err;
-            }
-          };
-
           const res = await withRefreshRetry((accessToken) =>
             client.saveArticle(accessToken, {
               title: article.title,
@@ -443,25 +430,6 @@ export function AuthProvider({
     if (token && refreshToken && target.remoteId) {
       void (async () => {
         try {
-          const withRefreshRetry = async <T,>(
-            work: (accessToken: string) => Promise<T>
-          ) => {
-            try {
-              return await work(token);
-            } catch (err) {
-              if (err instanceof ApiError && err.status === 401) {
-                const refreshed = await client.refresh(refreshToken);
-                setSession({
-                  token: refreshed.token,
-                  refreshToken: refreshed.refresh_token,
-                  user: refreshed.user,
-                });
-                return await work(refreshed.token);
-              }
-              throw err;
-            }
-          };
-
           await withRefreshRetry((accessToken) =>
             client.deleteSavedArticle(accessToken, target.remoteId as number)
           );

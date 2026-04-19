@@ -498,12 +498,16 @@ export function api(baseUrl: string) {
         }
       ),
     deleteCustomFeed: (token: string, feedId: number) =>
-      request<{ status: string }>(baseUrl, `/api/v1/user/custom-feeds/${feedId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }),
+      request<{ status: string }>(
+        baseUrl,
+        `/api/v1/user/custom-feeds/${feedId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      ),
     getLinkedAccounts: (token: string) =>
       request<{ accounts: unknown[] }>(
         baseUrl,

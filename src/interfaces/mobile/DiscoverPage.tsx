@@ -1,8 +1,8 @@
 import { Compass, Sparkles } from 'lucide-react';
 
 import { CustomFeedManager } from '../../components/feed/CustomFeedManager';
-import type { CustomFeed } from '../../lib/api';
 import type { FeedChoice } from '../../features/feed/useFeedPreferences';
+import type { CustomFeed } from '../../lib/api';
 
 type DiscoverPageProps = {
   feed: {

@@ -5,11 +5,11 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 
+import { GlobalErrorBoundary } from './components/shared/GlobalErrorBoundary';
 import { AuthProvider } from './features/auth/useAuth';
 import './index.css';
 import { DEFAULT_BASE_URL } from './lib/api';
 import { routeTree } from './routeTree.gen';
-import { GlobalErrorBoundary } from './components/shared/GlobalErrorBoundary';
 
 // Create a new router instance
 const router = createRouter({ routeTree });

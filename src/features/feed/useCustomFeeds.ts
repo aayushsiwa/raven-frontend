@@ -54,7 +54,8 @@ export function useCustomFeeds({
   });
 
   const deleteCustomFeed = useMutation({
-    mutationFn: (feedId: number) => client.deleteCustomFeed(token as string, feedId),
+    mutationFn: (feedId: number) =>
+      client.deleteCustomFeed(token as string, feedId),
     onSuccess: async () => {
       await invalidate();
     },
@@ -64,7 +65,9 @@ export function useCustomFeeds({
     customFeeds: (customFeedsQuery.data?.feeds ?? []) as CustomFeed[],
     loadingCustomFeeds: customFeedsQuery.isLoading,
     customFeedsError:
-      customFeedsQuery.error instanceof Error ? customFeedsQuery.error.message : null,
+      customFeedsQuery.error instanceof Error
+        ? customFeedsQuery.error.message
+        : null,
     customFeedActionError:
       (createCustomFeed.error instanceof Error
         ? createCustomFeed.error.message

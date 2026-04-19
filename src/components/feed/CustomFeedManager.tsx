@@ -141,7 +141,9 @@ export function CustomFeedManager(props: CustomFeedManagerProps) {
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="font-semibold text-[0.95rem] truncate">{feed.title}</p>
+                <p className="font-semibold text-[0.95rem] truncate">
+                  {feed.title}
+                </p>
                 <p className="text-[0.75rem] text-muted truncate">{feed.url}</p>
               </div>
               <span
