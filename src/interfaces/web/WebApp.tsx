@@ -4,20 +4,14 @@ import React from 'react';
 
 import { BackgroundBeams } from '../../components/aceternity/BackgroundBeams';
 import { Spotlight } from '../../components/aceternity/Spotlight';
-import type { LocalSavedArticle } from '../../features/auth/useAuth';
-import type { ThemeState } from '../../features/theme/useTheme';
+import { useAuth } from '../../features/auth/useAuth';
 
 type WebAppProps = {
-  defaultBaseUrl: string;
-  onLogout: () => void;
-  savedArticles: LocalSavedArticle[];
-  onSaveArticle: (article: Omit<LocalSavedArticle, 'id' | 'savedAt'>) => void;
-  onRemoveSavedArticle: (id: string) => void;
-  theme: ThemeState;
   children: React.ReactNode;
 };
 
-export function WebApp({ onLogout, children }: WebAppProps) {
+export function WebApp({ children }: WebAppProps) {
+  const auth = useAuth();
   return (
     <main className="relative max-w-[1140px] mx-auto px-4 py-8 pb-12 hidden md:block">
       <BackgroundBeams />
@@ -45,7 +39,7 @@ export function WebApp({ onLogout, children }: WebAppProps) {
         </div>
         <button
           className="flex items-center gap-2 px-[0.92rem] py-[0.6rem] rounded-[0.75rem] font-semibold transition-all duration-120 hover:brightness-110 active:scale-95 bg-surface-low text-primary border border-panel-border backdrop-blur-md"
-          onClick={onLogout}
+          onClick={auth.logout}
         >
           <LogOut size={18} /> Logout
         </button>

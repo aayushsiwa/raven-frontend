@@ -1,17 +1,16 @@
 import { useLocation } from '@tanstack/react-router';
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { Navbar } from './Navbar';
 
 type MobileAppProps = {
-  onLogout: () => void;
   children: React.ReactNode;
 };
 
 export type MobileTab = 'feed' | 'discover' | 'saved' | 'setup';
 
-export function MobileApp({ onLogout, children }: MobileAppProps) {
+export function MobileApp({ children }: MobileAppProps) {
   const location = useLocation();
   const handleBack = () => {
     window.history.back();
@@ -58,14 +57,14 @@ export function MobileApp({ onLogout, children }: MobileAppProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          {isSettings && (
+          {/* {isSettings && (
             <button
               className="flex items-center justify-center w-9 h-9 rounded-full bg-surface-low text-primary border border-panel-border backdrop-blur-md active:scale-90 transition-transform"
               onClick={onLogout}
             >
               <LogOut size={18} />
             </button>
-          )}
+          )} */}
           {isSettings ? (
             <button
               className="flex items-center justify-center w-9 h-9 rounded-full bg-surface-low text-text border border-panel-border backdrop-blur-md active:scale-90 transition-transform"

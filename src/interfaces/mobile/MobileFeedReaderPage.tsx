@@ -4,7 +4,7 @@ import { StoryCard } from '../../components/feed/StoryCard';
 import { FeedSkeleton } from '../../components/ui/Skeleton';
 import type { FeedStory } from '../../features/feed/useFeedPreferences';
 
-type MobileFeedReaderPageProps = {
+export type MobileFeedReaderPageProps = {
   stories: FeedStory[];
   isLoading: boolean;
   errorTexts: string[];

@@ -310,7 +310,12 @@ export function api(baseUrl: string) {
       ),
     userFeed: (
       token: string,
-      params: { limit: number; cursor?: number; from_ts?: number; to_ts?: number }
+      params: {
+        limit: number;
+        cursor?: number;
+        from_ts?: number;
+        to_ts?: number;
+      }
     ) =>
       request<UserFeedResponse>(
         baseUrl,

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { api } from '../../lib/api';
-import { useAuth } from '../useAuth';
+import { useAuth } from '../auth/useAuth';
 import { useBaseUrl } from '../useBaseURL';
 import { useFeedData } from './useFeedData';
 import { useFeedPreferences } from './useFeedPreferences';
@@ -9,7 +9,7 @@ import { useFeedTree } from './useFeedTree';
 
 export function useFeedExperience(defaultBaseUrl: string) {
   const base = useBaseUrl(defaultBaseUrl);
-  const { authToken, isAuthMode } = useAuth();
+  const { token: authToken, isAuthMode } = useAuth();
 
   const client = useMemo(() => api(base.baseUrl), [base.baseUrl]);
 
@@ -29,7 +29,13 @@ export function useFeedExperience(defaultBaseUrl: string) {
     ...base,
     ...tree,
     ...prefs,
-    ...feed,
+    allStories: feed.allStories,
+    feedLoading: feed.feedLoading,
+    feedErrorTexts: feed.feedErrorTexts,
+    refetch: feed.refetch,
+    hasMore: feed.hasMore,
+    loadNextPage: feed.loadNextPage,
+    loadingMore: feed.loadingMore,
     isAuthMode,
   };
 }

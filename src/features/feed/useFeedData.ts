@@ -113,8 +113,12 @@ export function useFeedData({
         ? [errorText(batchQuery.error)]
         : [],
     refetch: activeQuery.refetch,
-    hasMore: Boolean(activeQuery.hasNextPage),
-    loadNextPage: () => activeQuery.fetchNextPage(),
-    loadingMore: activeQuery.isFetchingNextPage,
+    hasMore: isAuthMode ? userFeedQuery.hasNextPage : batchQuery.hasNextPage,
+    loadNextPage: isAuthMode
+      ? userFeedQuery.fetchNextPage
+      : batchQuery.fetchNextPage,
+    loadingMore: isAuthMode
+      ? userFeedQuery.isFetchingNextPage
+      : batchQuery.isFetchingNextPage,
   };
 }

@@ -9,7 +9,6 @@ import {
   formatProvider,
 } from '../../../features/feed/constants';
 import { useSavedArticles } from '../../../features/savedArticles/useSavedArticles';
-import { DEFAULT_BASE_URL } from '../../../lib/api';
 import { formatDate, sanitizeHTML } from '../../../lib/utils';
 
 type StoryDetailRouteContentProps = {
@@ -25,7 +24,7 @@ type StoryDetailRouteContentProps = {
 
 export function StoryDetailRouteContent(props: StoryDetailRouteContentProps) {
   const navigate = useNavigate();
-  const auth = useAuth(DEFAULT_BASE_URL);
+  const auth = useAuth();
 
   const { isSaved, toggleSaved } = useSavedArticles({
     savedArticles: auth.savedArticles,

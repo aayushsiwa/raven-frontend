@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+
 import { StoryCard } from '../../../components/feed/StoryCard';
 import { FeedSkeleton } from '../../../components/ui/Skeleton';
 import { useAuth } from '../../../features/auth/useAuth';
@@ -6,11 +8,10 @@ import { useSavedArticles } from '../../../features/savedArticles/useSavedArticl
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { DEFAULT_BASE_URL } from '../../../lib/api';
 import { MobileFeedReaderPage } from '../../mobile/MobileFeedReaderPage';
-import { useEffect, useRef } from 'react';
 
 export function FeedRouteContent() {
   const isMobile = useIsMobile();
-  const auth = useAuth(DEFAULT_BASE_URL);
+  const auth = useAuth();
   const feed = useFeedExperience(DEFAULT_BASE_URL);
 
   const { isSaved, toggleSaved } = useSavedArticles({
@@ -40,7 +41,7 @@ export function FeedRouteContent() {
 
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
-  }, [feed.hasMore, feed.loadingMore, feed.loadNextPage]);
+  }, [feed]);
 
   if (isMobile) {
     return (
