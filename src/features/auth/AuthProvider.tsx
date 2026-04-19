@@ -14,6 +14,7 @@ import {
 const AUTH_STORE_KEY = 'raven.auth.v1';
 const GUEST_MODE_KEY = 'raven.guest.mode.v1';
 const SAVED_ARTICLES_KEY = 'raven.saved.articles.v1';
+const AUTH_TOKEN_COOKIE = 'raven_auth_token';
 
 type AuthStore = {
   token: string;
@@ -57,11 +58,35 @@ function readAuthStore(): AuthStore | null {
     const raw = localStorage.getItem(AUTH_STORE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as AuthStore;
-    if (!parsed?.token || !parsed?.user) return null;
+    const token = getCookie(AUTH_TOKEN_COOKIE);
+    if (!token || !parsed?.user) return null;
+    parsed.token = token;
     return parsed;
   } catch {
     return null;
   }
+}
+
+function setCookie(name: string, value: string, maxAgeSeconds: number) {
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${name}=${encodeURIComponent(value)}; Max-Age=${maxAgeSeconds}; Path=/; SameSite=Lax${secure}`;
+}
+
+function getCookie(name: string): string | null {
+  const target = `${name}=`;
+  const parts = document.cookie.split(';');
+  for (const rawPart of parts) {
+    const part = rawPart.trim();
+    if (part.startsWith(target)) {
+      return decodeURIComponent(part.slice(target.length));
+    }
+  }
+  return null;
+}
+
+function clearCookie(name: string) {
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${name}=; Max-Age=0; Path=/; SameSite=Lax${secure}`;
 }
 
 function readGuestMode(): boolean {
@@ -127,9 +152,16 @@ export function AuthProvider({
   // Persist session
   useEffect(() => {
     if (session) {
-      localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(session));
+      localStorage.setItem(
+        AUTH_STORE_KEY,
+        JSON.stringify({
+          user: session.user,
+        })
+      );
+      setCookie(AUTH_TOKEN_COOKIE, session.token, 60 * 60 * 24 * 7);
     } else {
       localStorage.removeItem(AUTH_STORE_KEY);
+      clearCookie(AUTH_TOKEN_COOKIE);
     }
   }, [session]);
 
@@ -260,6 +292,7 @@ export function AuthProvider({
         localStorage.removeItem(key);
       }
     });
+    clearCookie(AUTH_TOKEN_COOKIE);
 
     // Reset theme via theme hook (accessed in provider)
     theme.setPreset('dawn');
