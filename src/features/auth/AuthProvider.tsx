@@ -15,10 +15,10 @@ const AUTH_STORE_KEY = 'raven.auth.v1';
 const GUEST_MODE_KEY = 'raven.guest.mode.v1';
 const SAVED_ARTICLES_KEY = 'raven.saved.articles.v1';
 const AUTH_TOKEN_COOKIE = 'raven_auth_token';
+const REFRESH_TOKEN_COOKIE = 'raven_refresh_token';
 const ONBOARDING_DONE_KEY = 'raven.onboarding.done.v1';
 
 type AuthStore = {
-  token: string;
   user: AuthUser;
 };
 
@@ -60,8 +60,10 @@ function readAuthStore(): AuthStore | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as AuthStore;
     const token = getCookie(AUTH_TOKEN_COOKIE);
-    if (!token || !parsed?.user) return null;
+    const refreshToken = getCookie(REFRESH_TOKEN_COOKIE);
+    if (!token || !refreshToken || !parsed?.user) return null;
     parsed.token = token;
+    parsed.refreshToken = refreshToken;
     return parsed;
   } catch {
     return null;
@@ -175,9 +177,11 @@ export function AuthProvider({
         })
       );
       setCookie(AUTH_TOKEN_COOKIE, session.token, 60 * 60 * 24 * 7);
+      setCookie(REFRESH_TOKEN_COOKIE, session.refreshToken, 60 * 60 * 24 * 30);
     } else {
       localStorage.removeItem(AUTH_STORE_KEY);
       clearCookie(AUTH_TOKEN_COOKIE);
+      clearCookie(REFRESH_TOKEN_COOKIE);
     }
   }, [session]);
 
@@ -194,13 +198,33 @@ export function AuthProvider({
   useEffect(() => {
     let mounted = true;
     const token = session?.token;
-    if (!token) {
+    const refreshToken = session?.refreshToken;
+    if (!token || !refreshToken) {
       return;
     }
 
+    const withRefreshRetry = async <T,>(work: (accessToken: string) => Promise<T>) => {
+      try {
+        return await work(token);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          const refreshed = await client.refresh(refreshToken);
+          setSession({
+            token: refreshed.token,
+            refreshToken: refreshed.refresh_token,
+            user: refreshed.user,
+          });
+          return await work(refreshed.token);
+        }
+        throw err;
+      }
+    };
+
     const pullSaved = async () => {
       try {
-        const res = await client.getSavedArticles(token);
+        const res = await withRefreshRetry((accessToken) =>
+          client.getSavedArticles(accessToken)
+        );
         if (!mounted) return;
         setSavedArticles(
           res.articles
@@ -221,7 +245,9 @@ export function AuthProvider({
 
   // Handle OAuth callback hydration from URL
   useEffect(() => {
-    const token = new URLSearchParams(window.location.search).get('token');
+    const search = new URLSearchParams(window.location.search);
+    const token = search.get('token');
+    const refreshTokenFromUrl = search.get('refresh_token');
     if (!token) return;
 
     const hydrate = async () => {
@@ -229,7 +255,12 @@ export function AuthProvider({
       setErrorText(null);
       try {
         const me = await client.me(token);
-        setSession({ token, user: me.user });
+        const refreshToken = refreshTokenFromUrl ?? getCookie(REFRESH_TOKEN_COOKIE);
+        if (!refreshToken) {
+          setErrorText('Missing refresh token');
+          return;
+        }
+        setSession({ token, refreshToken, user: me.user });
         setOnboardingDone(true);
       } catch (err) {
         setErrorText(toErrorText(err));
@@ -237,6 +268,7 @@ export function AuthProvider({
         setLoading(false);
         const url = new URL(window.location.href);
         url.searchParams.delete('token');
+        url.searchParams.delete('refresh_token');
         window.history.replaceState({}, '', url.toString());
       }
     };
@@ -249,7 +281,11 @@ export function AuthProvider({
     setErrorText(null);
     try {
       const res = await client.login({ username, password });
-      setSession({ token: res.token, user: res.user });
+      setSession({
+        token: res.token,
+        refreshToken: res.refresh_token,
+        user: res.user,
+      });
       setOnboardingDone(true);
       return true;
     } catch (err) {
@@ -265,7 +301,11 @@ export function AuthProvider({
     setErrorText(null);
     try {
       const res = await client.signup({ username, password });
-      setSession({ token: res.token, user: res.user });
+      setSession({
+        token: res.token,
+        refreshToken: res.refresh_token,
+        user: res.user,
+      });
       setOnboardingDone(false);
       return true;
     } catch (err) {
@@ -298,7 +338,7 @@ export function AuthProvider({
     setErrorText(null);
     if (session?.token) {
       try {
-        await client.logout(session.token);
+        await client.logout(session.token, session.refreshToken);
       } catch {
         // ignore
       }
@@ -316,6 +356,7 @@ export function AuthProvider({
       }
     });
     clearCookie(AUTH_TOKEN_COOKIE);
+    clearCookie(REFRESH_TOKEN_COOKIE);
 
     // Reset theme via theme hook (accessed in provider)
     theme.setPreset('dawn');
@@ -332,18 +373,40 @@ export function AuthProvider({
     article: Omit<LocalSavedArticle, 'id' | 'savedAt'>
   ) => {
     const token = session?.token;
+    const refreshToken = session?.refreshToken;
 
-    if (token) {
+    if (token && refreshToken) {
       if (savedArticles.some((a) => a.url === article.url)) return;
 
       void (async () => {
         try {
-          const res = await client.saveArticle(token, {
-            title: article.title,
-            url: article.url,
-            summary: article.summary,
-            source: article.source,
-          });
+          const withRefreshRetry = async <T,>(
+            work: (accessToken: string) => Promise<T>
+          ) => {
+            try {
+              return await work(token);
+            } catch (err) {
+              if (err instanceof ApiError && err.status === 401) {
+                const refreshed = await client.refresh(refreshToken);
+                setSession({
+                  token: refreshed.token,
+                  refreshToken: refreshed.refresh_token,
+                  user: refreshed.user,
+                });
+                return await work(refreshed.token);
+              }
+              throw err;
+            }
+          };
+
+          const res = await withRefreshRetry((accessToken) =>
+            client.saveArticle(accessToken, {
+              title: article.title,
+              url: article.url,
+              summary: article.summary,
+              source: article.source,
+            })
+          );
           setSavedArticles((prev) => {
             if (prev.some((a) => a.url === article.url)) return prev;
             const next = [mapDbSavedArticle(res.article), ...prev];
@@ -373,13 +436,35 @@ export function AuthProvider({
 
   const removeLocalArticle = (id: string) => {
     const token = session?.token;
+    const refreshToken = session?.refreshToken;
     const target = savedArticles.find((a) => a.id === id);
     if (!target) return;
 
-    if (token && target.remoteId) {
+    if (token && refreshToken && target.remoteId) {
       void (async () => {
         try {
-          await client.deleteSavedArticle(token, target.remoteId as number);
+          const withRefreshRetry = async <T,>(
+            work: (accessToken: string) => Promise<T>
+          ) => {
+            try {
+              return await work(token);
+            } catch (err) {
+              if (err instanceof ApiError && err.status === 401) {
+                const refreshed = await client.refresh(refreshToken);
+                setSession({
+                  token: refreshed.token,
+                  refreshToken: refreshed.refresh_token,
+                  user: refreshed.user,
+                });
+                return await work(refreshed.token);
+              }
+              throw err;
+            }
+          };
+
+          await withRefreshRetry((accessToken) =>
+            client.deleteSavedArticle(accessToken, target.remoteId as number)
+          );
           setSavedArticles((prev) => prev.filter((a) => a.id !== id));
         } catch (err) {
           setErrorText(toErrorText(err));

@@ -25,6 +25,7 @@ export type AuthUser = {
 
 export type AuthResponse = {
   token: string;
+  refresh_token: string;
   user: AuthUser;
 };
 
@@ -283,6 +284,12 @@ export function api(baseUrl: string) {
           Authorization: `Bearer ${token}`,
         },
       }),
+    refresh: (refreshToken: string) =>
+      request<AuthResponse>(baseUrl, '/api/v1/auth/refresh', {
+        method: 'POST',
+        headers: jsonHeaders,
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      }),
     getUserFeedPreferences: (token: string) =>
       request<FeedPreferencesResponse>(
         baseUrl,
@@ -410,15 +417,19 @@ export function api(baseUrl: string) {
           body: JSON.stringify(payload),
         }
       ),
-    logout: (token: string) =>
+    logout: (token: string, refreshToken?: string | null) =>
       request<{ status: string; user_id: number }>(
         baseUrl,
         '/api/v1/auth/logout',
         {
           method: 'POST',
           headers: {
+            ...jsonHeaders,
             Authorization: `Bearer ${token}`,
           },
+          body: refreshToken
+            ? JSON.stringify({ refresh_token: refreshToken })
+            : undefined,
         }
       ),
     getSavedArticles: (token: string) =>
