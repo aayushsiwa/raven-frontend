@@ -1,5 +1,5 @@
 import { Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+// import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { useEffect, useState } from 'react';
 
 import { useAuth } from '../../../features/auth/useAuth';
@@ -94,7 +94,7 @@ export function RootLayout() {
           <Outlet />
         </WebApp>
       )}
-      <TanStackRouterDevtools position="top-right" />
+      {/* <TanStackRouterDevtools position="top-right" /> */}
     </AuthGate>
   );
 }
