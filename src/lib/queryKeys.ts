@@ -27,6 +27,8 @@ export const qk = {
   },
   userFeed: (baseUrl: string, token: string, limit: number, cursor?: number) =>
     ['user-feed', baseUrl, token, limit, cursor ?? null] as const,
+  customFeeds: (baseUrl: string, token: string) =>
+    ['custom-feeds', baseUrl, token] as const,
   subscriptions: (baseUrl: string, channelId?: number) =>
     ['subscriptions', baseUrl, channelId ?? 'all'] as const,
 };

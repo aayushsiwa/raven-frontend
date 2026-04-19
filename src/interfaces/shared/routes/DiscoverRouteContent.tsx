@@ -1,3 +1,4 @@
+import { CustomFeedManager } from '../../../components/feed/CustomFeedManager';
 import { InterestPicker } from '../../../components/feed/InterestPicker';
 import { useFeedExperience } from '../../../features/feed/useFeedExperience';
 import { useIsMobile } from '../../../hooks/useIsMobile';
@@ -36,6 +37,20 @@ export function DiscoverRouteContent() {
           onClearChoices={feed.clearChoices}
           className="p-0 max-h-none overflow-visible"
         />
+
+        <div className="mt-6 pt-6 border-t border-panel-border">
+          <CustomFeedManager
+            isAuthMode={feed.isAuthMode}
+            customFeeds={feed.customFeeds}
+            loadingCustomFeeds={feed.loadingCustomFeeds}
+            customFeedsError={feed.customFeedsError}
+            customFeedActionError={feed.customFeedActionError}
+            customFeedBusy={feed.customFeedBusy}
+            onAddCustomFeed={feed.addCustomFeed}
+            onToggleCustomFeed={feed.setCustomFeedActive}
+            onDeleteCustomFeed={feed.removeCustomFeed}
+          />
+        </div>
       </div>
     </div>
   );

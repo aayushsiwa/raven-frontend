@@ -170,6 +170,20 @@ export type SaveArticleBody = {
   source?: string;
 };
 
+export type CustomFeed = {
+  id: number;
+  title: string;
+  url: string;
+  category: string;
+  topic: string;
+  is_active: boolean;
+  created_at: string;
+};
+
+export type CustomFeedsResponse = {
+  feeds: CustomFeed[];
+};
+
 type ApiErrorPayload = {
   detail?: string | Record<string, unknown>;
   [key: string]: unknown;
@@ -438,7 +452,7 @@ export function api(baseUrl: string) {
         }
       ),
     getCustomFeeds: (token: string) =>
-      request<{ feeds: unknown[] }>(baseUrl, '/api/v1/user/custom-feeds', {
+      request<CustomFeedsResponse>(baseUrl, '/api/v1/user/custom-feeds', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -447,13 +461,37 @@ export function api(baseUrl: string) {
       token: string,
       payload: { title: string; url: string; category?: string; topic?: string }
     ) =>
-      request<{ feed: unknown }>(baseUrl, '/api/v1/user/custom-feeds', {
+      request<{ feed: CustomFeed }>(baseUrl, '/api/v1/user/custom-feeds', {
         method: 'POST',
         headers: {
           ...jsonHeaders,
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
+      }),
+    updateCustomFeed: (
+      token: string,
+      feedId: number,
+      payload: { title?: string; is_active?: boolean }
+    ) =>
+      request<{ feed: CustomFeed }>(
+        baseUrl,
+        `/api/v1/user/custom-feeds/${feedId}`,
+        {
+          method: 'PUT',
+          headers: {
+            ...jsonHeaders,
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      ),
+    deleteCustomFeed: (token: string, feedId: number) =>
+      request<{ status: string }>(baseUrl, `/api/v1/user/custom-feeds/${feedId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }),
     getLinkedAccounts: (token: string) =>
       request<{ accounts: unknown[] }>(

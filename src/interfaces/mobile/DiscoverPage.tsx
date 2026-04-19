@@ -1,10 +1,26 @@
 import { Compass, Sparkles } from 'lucide-react';
 
+import { CustomFeedManager } from '../../components/feed/CustomFeedManager';
+import type { CustomFeed } from '../../lib/api';
 import type { FeedChoice } from '../../features/feed/useFeedPreferences';
 
 type DiscoverPageProps = {
   feed: {
+    isAuthMode: boolean;
     savedChoices: FeedChoice[];
+    customFeeds: CustomFeed[];
+    loadingCustomFeeds: boolean;
+    customFeedsError: string | null;
+    customFeedActionError: string | null;
+    customFeedBusy: boolean;
+    addCustomFeed: (payload: {
+      title: string;
+      url: string;
+      category?: string;
+      topic?: string;
+    }) => Promise<void>;
+    setCustomFeedActive: (id: number, isActive: boolean) => Promise<void>;
+    removeCustomFeed: (id: number) => Promise<void>;
   };
 };
 
@@ -57,6 +73,18 @@ export function DiscoverPage(props: DiscoverPageProps) {
           </div>
         )}
       </div>
+
+      <CustomFeedManager
+        isAuthMode={props.feed.isAuthMode}
+        customFeeds={props.feed.customFeeds}
+        loadingCustomFeeds={props.feed.loadingCustomFeeds}
+        customFeedsError={props.feed.customFeedsError}
+        customFeedActionError={props.feed.customFeedActionError}
+        customFeedBusy={props.feed.customFeedBusy}
+        onAddCustomFeed={props.feed.addCustomFeed}
+        onToggleCustomFeed={props.feed.setCustomFeedActive}
+        onDeleteCustomFeed={props.feed.removeCustomFeed}
+      />
     </section>
   );
 }

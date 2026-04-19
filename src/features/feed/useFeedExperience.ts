@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { api } from '../../lib/api';
 import { useAuth } from '../auth/useAuth';
 import { useBaseUrl } from '../useBaseURL';
+import { useCustomFeeds } from './useCustomFeeds';
 import { useFeedData } from './useFeedData';
 import { useFeedPreferences } from './useFeedPreferences';
 import { useFeedTree } from './useFeedTree';
@@ -25,6 +26,12 @@ export function useFeedExperience(defaultBaseUrl: string) {
     authToken,
   });
 
+  const customFeeds = useCustomFeeds({
+    client,
+    baseUrl: base.baseUrl,
+    token: authToken,
+  });
+
   return {
     ...base,
     ...tree,
@@ -36,6 +43,7 @@ export function useFeedExperience(defaultBaseUrl: string) {
     hasMore: feed.hasMore,
     loadNextPage: feed.loadNextPage,
     loadingMore: feed.loadingMore,
+    ...customFeeds,
     isAuthMode,
   };
 }
