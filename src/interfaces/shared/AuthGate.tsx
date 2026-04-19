@@ -1,32 +1,28 @@
 import type { ReactNode } from 'react';
 
-import type { AuthState } from '../../features/auth/useAuth';
+import { useAuth } from '../../features/auth/useAuth';
 import type { FeedChoice } from '../../features/feed/useFeedPreferences';
 import type { ThemePresetId, ThemeState } from '../../features/theme/useTheme';
 import { OnboardingPage } from '../mobile/OnboardingPage';
 
 type AuthGateProps = {
-  auth: AuthState;
   defaultBaseUrl: string;
-  allowGuest: boolean;
   theme: ThemeState;
-  onContinueAsGuest: () => void;
   onApplyOnboardingChoices: (choices: FeedChoice[]) => void;
   onSelectOnboardingPreset: (presetId: ThemePresetId) => void;
   children: ReactNode;
 };
 
 export function AuthGate({
-  auth,
   defaultBaseUrl,
-  allowGuest,
   theme,
-  onContinueAsGuest,
   onApplyOnboardingChoices,
   onSelectOnboardingPreset,
   children,
 }: AuthGateProps) {
-  if (auth.user || allowGuest) {
+  const auth = useAuth();
+
+  if (auth.user || auth.allowGuest) {
     return <>{children}</>;
   }
 
@@ -43,7 +39,7 @@ export function AuthGate({
       activeThemePresetId={theme.presetId}
       onSelectThemePreset={onSelectOnboardingPreset}
       onApplyChoices={onApplyOnboardingChoices}
-      onContinueAsGuest={onContinueAsGuest}
+      onContinueAsGuest={auth.continueAsGuest}
     />
   );
 }

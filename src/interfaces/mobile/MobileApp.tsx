@@ -1,17 +1,16 @@
 import { useLocation } from '@tanstack/react-router';
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { Navbar } from './Navbar';
 
 type MobileAppProps = {
-  onLogout: () => void;
   children: React.ReactNode;
 };
 
 export type MobileTab = 'feed' | 'discover' | 'saved' | 'setup';
 
-export function MobileApp({ onLogout, children }: MobileAppProps) {
+export function MobileApp({ children }: MobileAppProps) {
   const location = useLocation();
   const handleBack = () => {
     window.history.back();
@@ -42,11 +41,11 @@ export function MobileApp({ onLogout, children }: MobileAppProps) {
       </div>
 
       <header className="sticky top-0 z-50 flex justify-between items-center px-4 py-6 backdrop-blur-3xl bg-panel border-b border-panel-border/20">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center">
           <img
             src="/logo.svg"
             alt="Raven Logo"
-            className="w-8 h-8 drop-shadow-sm"
+            className="w-12 h-12 drop-shadow-sm"
           />
           <div>
             <p className="uppercase tracking-[0.14em] text-[0.72rem] text-primary font-bold m-0">
@@ -58,14 +57,14 @@ export function MobileApp({ onLogout, children }: MobileAppProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          {isSettings && (
+          {/* {isSettings && (
             <button
               className="flex items-center justify-center w-9 h-9 rounded-full bg-surface-low text-primary border border-panel-border backdrop-blur-md active:scale-90 transition-transform"
               onClick={onLogout}
             >
               <LogOut size={18} />
             </button>
-          )}
+          )} */}
           {isSettings ? (
             <button
               className="flex items-center justify-center w-9 h-9 rounded-full bg-surface-low text-text border border-panel-border backdrop-blur-md active:scale-90 transition-transform"

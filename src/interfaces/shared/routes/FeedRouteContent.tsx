@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+
 import { StoryCard } from '../../../components/feed/StoryCard';
 import { FeedSkeleton } from '../../../components/ui/Skeleton';
 import { useAuth } from '../../../features/auth/useAuth';
@@ -9,7 +11,7 @@ import { MobileFeedReaderPage } from '../../mobile/MobileFeedReaderPage';
 
 export function FeedRouteContent() {
   const isMobile = useIsMobile();
-  const auth = useAuth(DEFAULT_BASE_URL);
+  const auth = useAuth();
   const feed = useFeedExperience(DEFAULT_BASE_URL);
 
   const { isSaved, toggleSaved } = useSavedArticles({
@@ -17,6 +19,29 @@ export function FeedRouteContent() {
     onSaveArticle: auth.saveArticleLocally,
     onRemoveSavedArticle: auth.removeLocalArticle,
   });
+
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!loadMoreRef.current || !feed.hasMore) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry?.isIntersecting && !feed.loadingMore) {
+          void feed.loadNextPage();
+        }
+      },
+      {
+        rootMargin: '220px',
+      }
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [feed]);
 
   if (isMobile) {
     return (
@@ -28,6 +53,11 @@ export function FeedRouteContent() {
           void feed.refetch();
         }}
         canRefresh={Boolean(feed.savedChoices.length)}
+        hasMore={feed.hasMore}
+        onLoadMore={() => {
+          void feed.loadNextPage();
+        }}
+        loadingMore={feed.loadingMore}
         isSaved={isSaved}
         onSaveToggle={toggleSaved}
       />
@@ -53,6 +83,15 @@ export function FeedRouteContent() {
             <p className="text-muted text-[1.2rem] max-w-[400px]">
               Your signal is empty. Add interests to begin collecting.
             </p>
+          </div>
+        ) : null}
+
+        {feed.hasMore ? (
+          <div
+            ref={loadMoreRef}
+            className="h-16 flex items-center justify-center text-muted text-[0.85rem]"
+          >
+            {feed.loadingMore ? 'Loading more stories...' : 'Scroll for more'}
           </div>
         ) : null}
       </div>

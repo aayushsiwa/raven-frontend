@@ -5,7 +5,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 
+import { AuthProvider } from './features/auth/useAuth';
 import './index.css';
+import { DEFAULT_BASE_URL } from './lib/api';
 import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
@@ -36,7 +38,9 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <AuthProvider baseUrl={DEFAULT_BASE_URL}>
+          <RouterProvider router={router} />
+        </AuthProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </StrictMode>

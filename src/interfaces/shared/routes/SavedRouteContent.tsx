@@ -2,12 +2,11 @@ import { LogOut } from 'lucide-react';
 
 import { useAuth } from '../../../features/auth/useAuth';
 import { useIsMobile } from '../../../hooks/useIsMobile';
-import { DEFAULT_BASE_URL } from '../../../lib/api';
 import { SavedArticlesPage as MobileSavedPage } from '../../mobile/SavedArticlesPage';
 
 export function SavedRouteContent() {
   const isMobile = useIsMobile();
-  const auth = useAuth(DEFAULT_BASE_URL);
+  const auth = useAuth();
 
   if (isMobile) {
     return (

@@ -4,12 +4,15 @@ import { StoryCard } from '../../components/feed/StoryCard';
 import { FeedSkeleton } from '../../components/ui/Skeleton';
 import type { FeedStory } from '../../features/feed/useFeedPreferences';
 
-type MobileFeedReaderPageProps = {
+export type MobileFeedReaderPageProps = {
   stories: FeedStory[];
   isLoading: boolean;
   errorTexts: string[];
   onRefresh: () => void;
   canRefresh: boolean;
+  hasMore: boolean;
+  onLoadMore: () => void;
+  loadingMore: boolean;
   isSaved: (story: FeedStory) => boolean;
   onSaveToggle: (story: FeedStory) => void;
 };
@@ -63,6 +66,17 @@ export function MobileFeedReaderPage(props: MobileFeedReaderPageProps) {
               Open Interests tab and add topics to begin.
             </p>
           </div>
+        ) : null}
+
+        {props.stories.length > 0 && props.hasMore ? (
+          <button
+            type="button"
+            onClick={props.onLoadMore}
+            disabled={props.loadingMore}
+            className="mt-2 w-full px-4 py-2.5 rounded-xl border border-panel-border bg-surface-low text-primary text-[0.85rem] font-bold disabled:opacity-60"
+          >
+            {props.loadingMore ? 'Loading...' : 'Load more'}
+          </button>
         ) : null}
       </div>
     </section>
