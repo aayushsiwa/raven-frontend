@@ -29,6 +29,7 @@ export type AuthContextType = {
   savedArticles: LocalSavedArticle[];
   isAuthMode: boolean;
   isGuestMode: boolean;
+  needsOnboarding: boolean;
   validateFields: (
     username: string,
     password: string,
@@ -39,6 +40,7 @@ export type AuthContextType = {
   oauthLogin: (provider: OAuthProvider) => Promise<boolean>;
   logout: () => Promise<void>;
   continueAsGuest: () => void;
+  completeOnboarding: () => void;
   saveArticleLocally: (
     article: Omit<LocalSavedArticle, 'id' | 'savedAt'>
   ) => void;

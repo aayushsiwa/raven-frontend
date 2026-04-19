@@ -15,6 +15,7 @@ const AUTH_STORE_KEY = 'raven.auth.v1';
 const GUEST_MODE_KEY = 'raven.guest.mode.v1';
 const SAVED_ARTICLES_KEY = 'raven.saved.articles.v1';
 const AUTH_TOKEN_COOKIE = 'raven_auth_token';
+const ONBOARDING_DONE_KEY = 'raven.onboarding.done.v1';
 
 type AuthStore = {
   token: string;
@@ -97,6 +98,18 @@ function readGuestMode(): boolean {
   }
 }
 
+function readOnboardingDone(): boolean {
+  try {
+    const raw = localStorage.getItem(ONBOARDING_DONE_KEY);
+    if (raw === null) {
+      return true;
+    }
+    return raw === '1';
+  } catch {
+    return true;
+  }
+}
+
 function readLocalSavedArticles(): LocalSavedArticle[] {
   try {
     const raw = localStorage.getItem(SAVED_ARTICLES_KEY);
@@ -145,6 +158,9 @@ export function AuthProvider({
   const [savedArticles, setSavedArticles] = useState<LocalSavedArticle[]>(
     readLocalSavedArticles
   );
+  const [onboardingDone, setOnboardingDone] = useState<boolean>(
+    readOnboardingDone
+  );
 
   const theme = useTheme();
   const client = useMemo(() => api(baseUrl), [baseUrl]);
@@ -169,6 +185,10 @@ export function AuthProvider({
   useEffect(() => {
     localStorage.setItem(GUEST_MODE_KEY, allowGuest ? '1' : '0');
   }, [allowGuest]);
+
+  useEffect(() => {
+    localStorage.setItem(ONBOARDING_DONE_KEY, onboardingDone ? '1' : '0');
+  }, [onboardingDone]);
 
   // Sync saved articles with DB if logged in
   useEffect(() => {
@@ -210,6 +230,7 @@ export function AuthProvider({
       try {
         const me = await client.me(token);
         setSession({ token, user: me.user });
+        setOnboardingDone(true);
       } catch (err) {
         setErrorText(toErrorText(err));
       } finally {
@@ -229,6 +250,7 @@ export function AuthProvider({
     try {
       const res = await client.login({ username, password });
       setSession({ token: res.token, user: res.user });
+      setOnboardingDone(true);
       return true;
     } catch (err) {
       setErrorText(toErrorText(err));
@@ -244,6 +266,7 @@ export function AuthProvider({
     try {
       const res = await client.signup({ username, password });
       setSession({ token: res.token, user: res.user });
+      setOnboardingDone(false);
       return true;
     } catch (err) {
       setErrorText(toErrorText(err));
@@ -300,6 +323,10 @@ export function AuthProvider({
   };
 
   const continueAsGuest = () => setAllowGuest(true);
+
+  const completeOnboarding = () => {
+    setOnboardingDone(true);
+  };
 
   const saveArticleLocally = (
     article: Omit<LocalSavedArticle, 'id' | 'savedAt'>
@@ -378,12 +405,14 @@ export function AuthProvider({
     savedArticles,
     isAuthMode: !!session?.token,
     isGuestMode: !session?.token && allowGuest,
+    needsOnboarding: Boolean(session?.token) && !onboardingDone,
     validateFields: validateFieldsInternal,
     login,
     signup,
     oauthLogin,
     logout,
     continueAsGuest,
+    completeOnboarding,
     saveArticleLocally,
     removeLocalArticle,
   };

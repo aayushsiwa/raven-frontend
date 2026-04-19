@@ -1,6 +1,7 @@
 import { Outlet } from '@tanstack/react-router';
 
 import { AuthProvider } from '../../../features/auth/useAuth';
+import { useAuth } from '../../../features/auth/useAuth';
 import type { FeedChoice } from '../../../features/feed/useFeedPreferences';
 import { type ThemeState, useTheme } from '../../../features/theme/useTheme';
 import type { ThemePresetId } from '../../../features/theme/useTheme';
@@ -30,8 +31,11 @@ function RootLayoutContent({
   isMobile: boolean;
   theme: ThemeState;
 }) {
+  const auth = useAuth();
+
   const applyOnboardingChoices = (choices: FeedChoice[]) => {
     localStorage.setItem(FEED_PREFS_KEY, JSON.stringify(choices));
+    auth.completeOnboarding();
   };
 
   const handleSelectOnboardingPreset = (presetId: ThemePresetId) => {

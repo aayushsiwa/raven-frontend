@@ -22,7 +22,7 @@ export function AuthGate({
 }: AuthGateProps) {
   const auth = useAuth();
 
-  if (auth.user || auth.allowGuest) {
+  if ((auth.user && !auth.needsOnboarding) || auth.allowGuest) {
     return <>{children}</>;
   }
 
@@ -39,7 +39,10 @@ export function AuthGate({
       activeThemePresetId={theme.presetId}
       onSelectThemePreset={onSelectOnboardingPreset}
       onApplyChoices={onApplyOnboardingChoices}
-      onContinueAsGuest={auth.continueAsGuest}
+      onContinueAsGuest={() => {
+        auth.completeOnboarding();
+        auth.continueAsGuest();
+      }}
     />
   );
 }
